@@ -26,6 +26,11 @@ public class GuiceTest extends ContainerTest {
                 return getInjector().getInstance(type);
             }
 
+            @Override
+            public void inject(Object target) {
+                getInjector().injectMembers(target);
+            }
+
             private Injector getInjector() {
                 if (injector == null) {
                     injector = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
