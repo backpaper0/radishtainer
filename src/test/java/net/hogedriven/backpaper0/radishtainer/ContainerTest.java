@@ -2,8 +2,8 @@ package net.hogedriven.backpaper0.radishtainer;
 
 import net.hogedriven.backpaper0.radishtainer.test.Aaa;
 import net.hogedriven.backpaper0.radishtainer.test.Bbb;
-import net.hogedriven.backpaper0.radishtainer.test.Ccc1;
 import net.hogedriven.backpaper0.radishtainer.test.Ccc2;
+import net.hogedriven.backpaper0.radishtainer.test.Ddd2;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -48,6 +48,17 @@ public class ContainerTest {
         assertTrue("super field < sub field", target.getSuperField().count < target.getSubField().count);
         assertTrue("super method < sub method", target.getSuperMethod().count < target.getSubMethod().count);
         assertTrue("super method < sub field", target.getSuperMethod().count < target.getSubField().count);
+    }
+
+    @Test
+    public void test_inject_inheritance() throws Exception {
+        Container c = newContainer();
+        Ddd2 target = new Ddd2();
+        c.inject(target);
+        assertThat("super @Inject", target.withAtInjectSuper, is(false));
+        assertThat("super no annotation", target.noAtInjectSuper, is(false));
+        assertThat("sub @Inject", target.withAtInjectSub, is(true));
+        assertThat("sub no annotation", target.noAtInjectSub, is(false));
     }
 
     protected Container newContainer() {

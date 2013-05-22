@@ -40,43 +40,25 @@ public class Container {
             classes.add(clazz);
         }
         Collections.reverse(classes);
+        List<Injector> injectors = new ArrayList<>();
         for (Class<?> clazz : classes) {
             for (Field field : clazz.getDeclaredFields()) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Class<?> type = field.getType();
-                    Object dependency = getInstance(type);
-                    if (Modifier.isPublic(field.getModifiers()) == false
-                            && field.isAccessible() == false) {
-                        field.setAccessible(true);
-                    }
-                    try {
-                        field.set(target, dependency);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
+                Injector injector = new FieldInjector(field);
+                injectors.remove(injector);
+                if (injector.isInjectable()) {
+                    injectors.add(injector);
                 }
             }
             for (Method method : clazz.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Inject.class)) {
-                    Class<?>[] parameterTypes = method.getParameterTypes();
-                    Object[] dependencies = new Object[parameterTypes.length];
-                    for (int i = 0; i < parameterTypes.length; i++) {
-                        Class<?> type = parameterTypes[i];
-                        dependencies[i] = getInstance(type);
-                    }
-                    if (Modifier.isPublic(method.getModifiers()) == false
-                            && method.isAccessible() == false) {
-                        method.setAccessible(true);
-                    }
-                    try {
-                        method.invoke(target, dependencies);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e.getCause());
-                    }
+                Injector injector = new MethodInjector(method);
+                injectors.remove(injector);
+                if (injector.isInjectable()) {
+                    injectors.add(injector);
                 }
             }
+        }
+        for (Injector injector : injectors) {
+            injector.inject(this, target);
         }
     }
 }
