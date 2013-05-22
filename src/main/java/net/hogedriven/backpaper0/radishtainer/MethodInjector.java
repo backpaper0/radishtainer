@@ -3,24 +3,16 @@ package net.hogedriven.backpaper0.radishtainer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Objects;
 import javax.inject.Inject;
 
 public class MethodInjector extends Injector {
 
     private final Method method;
 
-    private final Map<String, Object> metaData = new HashMap<>();
-
     public MethodInjector(Method method) {
         this.method = method;
-        metaData.put("name", method.getName());
-        int index = 0;
-        for (Class<?> parameterType : method.getParameterTypes()) {
-            metaData.put("parameterType" + index, parameterType);
-            index++;
-        }
     }
 
     @Override
@@ -49,17 +41,28 @@ public class MethodInjector extends Injector {
         }
     }
 
-    @Override
-    public int hashCode() {
-        return metaData.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if ((obj instanceof MethodInjector) == false) {
+    public boolean isOverrideForm(MethodInjector other) {
+        if (method.getDeclaringClass() == other.method.getDeclaringClass()) {
             return false;
         }
-        MethodInjector other = (MethodInjector) obj;
-        return metaData.equals(other.metaData);
+        if (other.method.getDeclaringClass().isAssignableFrom(method.getDeclaringClass()) == false) {
+            return false;
+        }
+        if (Objects.equals(method.getName(), other.method.getName()) == false) {
+            return false;
+        }
+        if (Arrays.equals(method.getParameterTypes(), other.method.getParameterTypes()) == false) {
+            return false;
+        }
+        if (Modifier.isPrivate(other.method.getModifiers())) {
+            return false;
+        }
+        if (Modifier.isProtected(other.method.getModifiers()) == false
+                && Modifier.isPublic(other.method.getModifiers()) == false
+                && Objects.equals(method.getDeclaringClass().getPackage(),
+                other.method.getDeclaringClass().getPackage()) == false) {
+            return false;
+        }
+        return true;
     }
 }

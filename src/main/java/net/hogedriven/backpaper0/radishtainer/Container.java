@@ -1,17 +1,12 @@
 package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.inject.Inject;
 
 public class Container {
 
@@ -44,14 +39,20 @@ public class Container {
         for (Class<?> clazz : classes) {
             for (Field field : clazz.getDeclaredFields()) {
                 Injector injector = new FieldInjector(field);
-                injectors.remove(injector);
                 if (injector.isInjectable()) {
                     injectors.add(injector);
                 }
             }
             for (Method method : clazz.getDeclaredMethods()) {
-                Injector injector = new MethodInjector(method);
-                injectors.remove(injector);
+                MethodInjector injector = new MethodInjector(method);
+                for (Injector other : injectors) {
+                    if (other instanceof MethodInjector) {
+                        if (injector.isOverrideForm((MethodInjector) other)) {
+                            injectors.remove(other);
+                            break;
+                        }
+                    }
+                }
                 if (injector.isInjectable()) {
                     injectors.add(injector);
                 }

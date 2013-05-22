@@ -4,6 +4,8 @@ import net.hogedriven.backpaper0.radishtainer.test.Aaa;
 import net.hogedriven.backpaper0.radishtainer.test.Bbb;
 import net.hogedriven.backpaper0.radishtainer.test.Ccc2;
 import net.hogedriven.backpaper0.radishtainer.test.Ddd2;
+import net.hogedriven.backpaper0.radishtainer.test.Eee2;
+import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -59,6 +61,36 @@ public class ContainerTest {
         assertThat("super no annotation", target.noAtInjectSuper, is(false));
         assertThat("sub @Inject", target.withAtInjectSub, is(true));
         assertThat("sub no annotation", target.noAtInjectSub, is(false));
+    }
+
+    @Test
+    public void test_inject_no_override() throws Exception {
+        Container c = newContainer();
+        Eee2 target = new Eee2();
+        c.inject(target);
+        assertThat("private super", target.privateMethodSuper, is(true));
+        assertThat("package private super", target.packagePrivateMethodSuper, is(false));
+        assertThat("protected super", target.protectedMethodSuper, is(false));
+        assertThat("public super", target.publicMethodSuper, is(false));
+        assertThat("private sub", target.privateMethodSub, is(false));
+        assertThat("package private sub", target.packagePrivateMethodSub, is(false));
+        assertThat("protected sub", target.protectedMethodSub, is(false));
+        assertThat("public sub", target.publicMethodSub, is(false));
+    }
+
+    @Test
+    public void test_inject_no_override_diff_package() throws Exception {
+        Container c = newContainer();
+        Eee3 target = new Eee3();
+        c.inject(target);
+        assertThat("private super", target.privateMethodSuper, is(true));
+        assertThat("package private super", target.packagePrivateMethodSuper, is(true));
+        assertThat("protected super", target.protectedMethodSuper, is(false));
+        assertThat("public super", target.publicMethodSuper, is(false));
+        assertThat("private sub", target.privateMethodSub, is(false));
+        assertThat("package private sub", target.packagePrivateMethodSub, is(false));
+        assertThat("protected sub", target.protectedMethodSub, is(false));
+        assertThat("public sub", target.publicMethodSub, is(false));
     }
 
     protected Container newContainer() {
