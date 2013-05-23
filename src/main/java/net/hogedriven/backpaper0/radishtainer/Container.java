@@ -5,22 +5,22 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 public class Container {
 
-    private Set<Class<?>> types = new HashSet<>();
+    private Map<Class<?>, Class<?>> types = new IdentityHashMap<>();
 
-    public <T> void add(Class<T> type) {
-        types.add(type);
+    public <T> void add(Class<T> type, Class<? extends T> impl) {
+        types.put(type, impl != null ? impl : type);
     }
 
     public <T> T getInstance(Class<T> type) {
-        for (Class<?> type2 : types) {
+        for (Class<?> type2 : types.keySet()) {
             if (type2 == type) {
-                Object instance = newInstance(type);
+                Object instance = newInstance(types.get(type2));
                 inject(instance);
                 return (T) instance;
             }

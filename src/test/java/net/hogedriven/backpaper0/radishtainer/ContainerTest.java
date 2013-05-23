@@ -7,6 +7,8 @@ import net.hogedriven.backpaper0.radishtainer.test.Ddd2;
 import net.hogedriven.backpaper0.radishtainer.test.Eee2;
 import net.hogedriven.backpaper0.radishtainer.test.Fff;
 import net.hogedriven.backpaper0.radishtainer.test.Ggg;
+import net.hogedriven.backpaper0.radishtainer.test.Hhh1;
+import net.hogedriven.backpaper0.radishtainer.test.Hhh2;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -17,7 +19,7 @@ public class ContainerTest {
     @Test
     public void test_getInstance() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class);
+        c.add(Aaa.class, null);
         Aaa instance = c.getInstance(Aaa.class);
         assertThat(instance, is(notNullValue()));
     }
@@ -25,7 +27,7 @@ public class ContainerTest {
     @Test
     public void test_inject() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class);
+        c.add(Aaa.class, null);
         Bbb target = new Bbb();
         c.inject(target);
         assertThat("private field", target.getPrivateField(), not(sameInstance(Aaa.INSTANCE)));
@@ -41,7 +43,7 @@ public class ContainerTest {
     @Test
     public void test_not_inject() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class);
+        c.add(Aaa.class, null);
         Ccc2 target = new Ccc2();
         c.inject(target);
         assertThat("super field", target.getSuperField(), not(sameInstance(Aaa.INSTANCE)));
@@ -98,8 +100,8 @@ public class ContainerTest {
     @Test
     public void test_getInstance_andinject() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class);
-        c.add(Fff.class);
+        c.add(Aaa.class, null);
+        c.add(Fff.class, null);
         Fff instance = c.getInstance(Fff.class);
         assertThat("instance", instance, notNullValue());
         assertThat("field injection", instance.getField(), not(sameInstance(Aaa.INSTANCE)));
@@ -109,11 +111,19 @@ public class ContainerTest {
     @Test
     public void test_constructor_injection() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class);
-        c.add(Ggg.class);
+        c.add(Aaa.class, null);
+        c.add(Ggg.class, null);
         Ggg instance = c.getInstance(Ggg.class);
         assertThat("instance", instance, notNullValue());
         assertThat("constructor injection", instance.aaa, not(sameInstance(Aaa.INSTANCE)));
+    }
+
+    @Test
+    public void test_getInstance_by_interface() throws Exception {
+        Container c = newContainer();
+        c.add(Hhh1.class, Hhh2.class);
+        Hhh1 instance = c.getInstance(Hhh1.class);
+        assertThat(instance, instanceOf(Hhh2.class));
     }
 
     protected Container newContainer() {
