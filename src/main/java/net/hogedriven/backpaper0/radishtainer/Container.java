@@ -2,15 +2,12 @@ package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
 
 public class Container {
 
@@ -32,32 +29,23 @@ public class Container {
     }
 
     private Object newInstance(Class<?> clazz) {
+        List<Injector> injectors = new ArrayList<>();
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            if (constructor.isAnnotationPresent(Inject.class)) {
-                Class<?>[] parameterTypes = constructor.getParameterTypes();
-                Object[] dependencies = new Object[parameterTypes.length];
-                for (int i = 0; i < parameterTypes.length; i++) {
-                    Class<?> type = parameterTypes[i];
-                    dependencies[i] = getInstance(type);
-                }
-                if (Modifier.isPublic(constructor.getModifiers()) == false
-                        && constructor.isAccessible() == false) {
-                    constructor.setAccessible(true);
-                }
-                try {
-                    return constructor.newInstance(dependencies);
-                } catch (IllegalAccessException | InstantiationException e) {
-                    throw new RuntimeException(e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e.getCause());
-                }
+            Injector injector = new ConstructorInjector(constructor);
+            if (injector.isInjectable()) {
+                injectors.add(injector);
             }
         }
-        try {
-            return clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+        if (injectors.isEmpty()) {
+            try {
+                Constructor<?> constructor = clazz.getDeclaredConstructor();
+                Injector injector = new ConstructorInjector(constructor);
+                injectors.add(injector);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
         }
+        return injectors.get(0).inject(this, null);
     }
 
     public void inject(Object target) {

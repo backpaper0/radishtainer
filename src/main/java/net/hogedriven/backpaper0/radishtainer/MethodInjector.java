@@ -21,7 +21,7 @@ public class MethodInjector extends Injector {
     }
 
     @Override
-    public void inject(Container container, Object target) {
+    public Object inject(Container container, Object target) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         Object[] dependencies = new Object[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
@@ -33,7 +33,7 @@ public class MethodInjector extends Injector {
             method.setAccessible(true);
         }
         try {
-            method.invoke(target, dependencies);
+            return method.invoke(target, dependencies);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {

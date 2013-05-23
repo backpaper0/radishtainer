@@ -18,7 +18,7 @@ public class FieldInjector extends Injector {
     }
 
     @Override
-    public void inject(Container container, Object target) {
+    public Object inject(Container container, Object target) {
         Class<?> type = field.getType();
         Object dependency = container.getInstance(type);
         if (Modifier.isPublic(field.getModifiers()) == false
@@ -30,5 +30,6 @@ public class FieldInjector extends Injector {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+        return null;
     }
 }
