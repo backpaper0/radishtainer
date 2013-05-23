@@ -1,11 +1,13 @@
 package net.hogedriven.backpaper0.radishtainer;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Objects;
 import javax.inject.Inject;
+import javax.inject.Qualifier;
 
 public class MethodInjector extends Injector {
 
@@ -23,10 +25,17 @@ public class MethodInjector extends Injector {
     @Override
     public Object inject(Container container, Object target) {
         Class<?>[] parameterTypes = method.getParameterTypes();
+        Annotation[][] annotations = method.getParameterAnnotations();
         Object[] dependencies = new Object[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
             Class<?> type = parameterTypes[i];
-            dependencies[i] = container.getInstance(type, null);
+            Annotation qualifier = null;
+            for (Annotation annotation : annotations[i]) {
+                if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
+                    qualifier = annotation;
+                }
+            }
+            dependencies[i] = container.getInstance(type, qualifier);
         }
         if (Modifier.isPublic(method.getModifiers()) == false
                 && method.isAccessible() == false) {

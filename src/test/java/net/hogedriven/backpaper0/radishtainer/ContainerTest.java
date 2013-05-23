@@ -13,6 +13,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Hhh2;
 import net.hogedriven.backpaper0.radishtainer.test.Iii1;
 import net.hogedriven.backpaper0.radishtainer.test.Iii2;
 import net.hogedriven.backpaper0.radishtainer.test.Iii3;
+import net.hogedriven.backpaper0.radishtainer.test.Jjj;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -142,6 +143,22 @@ public class ContainerTest {
         Iii2 instance2 = c.getInstance(Iii2.class, iii1);
         assertThat(instance1, not(instanceOf(Iii3.class)));
         assertThat(instance2, instanceOf(Iii3.class));
+    }
+
+    @Test
+    public void test_inject_by_qualifier() throws Exception {
+        Annotation iii1 = ContainerTest.class.getDeclaredField("withIii1").getAnnotation(Iii1.class);
+        Container c = newContainer();
+        c.add(Jjj.class, null, null);
+        c.add(Iii2.class, null, null);
+        c.add(Iii2.class, iii1, Iii3.class);
+        Jjj instance = c.getInstance(Jjj.class, null);
+        assertThat("field plain", instance.getFieldPlain(), not(instanceOf(Iii3.class)));
+        assertThat("field with qualifier", instance.getFieldWithQualifier(), instanceOf(Iii3.class));
+        assertThat("constructor plain", instance.getConstructorPlain(), not(instanceOf(Iii3.class)));
+        assertThat("constructor with qualifier", instance.getConstructorWithQualifier(), instanceOf(Iii3.class));
+        assertThat("method plain", instance.getMethodPlain(), not(instanceOf(Iii3.class)));
+        assertThat("method with qualifier", instance.getMethodWithQualifier(), instanceOf(Iii3.class));
     }
 
     protected Container newContainer() {
