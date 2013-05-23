@@ -6,6 +6,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Ccc2;
 import net.hogedriven.backpaper0.radishtainer.test.Ddd2;
 import net.hogedriven.backpaper0.radishtainer.test.Eee2;
 import net.hogedriven.backpaper0.radishtainer.test.Fff;
+import net.hogedriven.backpaper0.radishtainer.test.Ggg;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -103,6 +104,16 @@ public class ContainerTest {
         assertThat("instance", instance, notNullValue());
         assertThat("field injection", instance.getField(), not(sameInstance(Aaa.INSTANCE)));
         assertThat("method injection", instance.getMethod(), not(sameInstance(Aaa.INSTANCE)));
+    }
+
+    @Test
+    public void test_constructor_injection() throws Exception {
+        Container c = newContainer();
+        c.add(Aaa.class);
+        c.add(Ggg.class);
+        Ggg instance = c.getInstance(Ggg.class);
+        assertThat("instance", instance, notNullValue());
+        assertThat("constructor injection", instance.aaa, not(sameInstance(Aaa.INSTANCE)));
     }
 
     protected Container newContainer() {
