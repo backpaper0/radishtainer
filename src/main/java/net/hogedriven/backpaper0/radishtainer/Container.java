@@ -20,7 +20,9 @@ public class Container {
         for (Class<?> type2 : types) {
             if (type2 == type) {
                 try {
-                    return (T) type2.newInstance();
+                    Object instance = type2.newInstance();
+                    inject(instance);
+                    return (T) instance;
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }

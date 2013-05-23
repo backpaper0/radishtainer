@@ -5,6 +5,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Bbb;
 import net.hogedriven.backpaper0.radishtainer.test.Ccc2;
 import net.hogedriven.backpaper0.radishtainer.test.Ddd2;
 import net.hogedriven.backpaper0.radishtainer.test.Eee2;
+import net.hogedriven.backpaper0.radishtainer.test.Fff;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -91,6 +92,17 @@ public class ContainerTest {
         assertThat("package private sub", target.packagePrivateMethodSub, is(false));
         assertThat("protected sub", target.protectedMethodSub, is(false));
         assertThat("public sub", target.publicMethodSub, is(false));
+    }
+
+    @Test
+    public void test_getInstance_andinject() throws Exception {
+        Container c = newContainer();
+        c.add(Aaa.class);
+        c.add(Fff.class);
+        Fff instance = c.getInstance(Fff.class);
+        assertThat("instance", instance, notNullValue());
+        assertThat("field injection", instance.getField(), not(sameInstance(Aaa.INSTANCE)));
+        assertThat("method injection", instance.getMethod(), not(sameInstance(Aaa.INSTANCE)));
     }
 
     protected Container newContainer() {
