@@ -1,26 +1,26 @@
 package net.hogedriven.backpaper0.radishtainer;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Container {
 
-    private Map<Class<?>, Class<?>> types = new IdentityHashMap<>();
+    private List<Descriptor<?>> descriptors = new ArrayList<>();
 
-    public <T> void add(Class<T> type, Class<? extends T> impl) {
-        types.put(type, impl != null ? impl : type);
+    public <T> void add(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
+        Descriptor<T> descriptor = new Descriptor<>(type, qualifier, impl);
+        descriptors.add(descriptor);
     }
 
-    public <T> T getInstance(Class<T> type) {
-        for (Class<?> type2 : types.keySet()) {
-            if (type2 == type) {
-                Object instance = newInstance(types.get(type2));
+    public <T> T getInstance(Class<T> type, Annotation qualifier) {
+        for (Descriptor<?> descriptor : descriptors) {
+            if (descriptor.match(type, qualifier)) {
+                Object instance = newInstance(descriptor);
                 inject(instance);
                 return (T) instance;
             }
@@ -28,7 +28,8 @@ public class Container {
         throw new RuntimeException();
     }
 
-    private Object newInstance(Class<?> clazz) {
+    private Object newInstance(Descriptor<?> descriptor) {
+        Class<?> clazz = descriptor.impl;
         List<Injector> injectors = new ArrayList<>();
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
             Injector injector = new ConstructorInjector(constructor);

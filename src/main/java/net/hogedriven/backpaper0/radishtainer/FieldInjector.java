@@ -20,7 +20,7 @@ public class FieldInjector extends Injector {
     @Override
     public Object inject(Container container, Object target) {
         Class<?> type = field.getType();
-        Object dependency = container.getInstance(type);
+        Object dependency = container.getInstance(type, null);
         if (Modifier.isPublic(field.getModifiers()) == false
                 && field.isAccessible() == false) {
             field.setAccessible(true);

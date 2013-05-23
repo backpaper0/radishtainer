@@ -1,5 +1,6 @@
 package net.hogedriven.backpaper0.radishtainer;
 
+import java.lang.annotation.Annotation;
 import net.hogedriven.backpaper0.radishtainer.test.Aaa;
 import net.hogedriven.backpaper0.radishtainer.test.Bbb;
 import net.hogedriven.backpaper0.radishtainer.test.Ccc2;
@@ -9,6 +10,9 @@ import net.hogedriven.backpaper0.radishtainer.test.Fff;
 import net.hogedriven.backpaper0.radishtainer.test.Ggg;
 import net.hogedriven.backpaper0.radishtainer.test.Hhh1;
 import net.hogedriven.backpaper0.radishtainer.test.Hhh2;
+import net.hogedriven.backpaper0.radishtainer.test.Iii1;
+import net.hogedriven.backpaper0.radishtainer.test.Iii2;
+import net.hogedriven.backpaper0.radishtainer.test.Iii3;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -19,15 +23,15 @@ public class ContainerTest {
     @Test
     public void test_getInstance() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null);
-        Aaa instance = c.getInstance(Aaa.class);
+        c.add(Aaa.class, null, null);
+        Aaa instance = c.getInstance(Aaa.class, null);
         assertThat(instance, is(notNullValue()));
     }
 
     @Test
     public void test_inject() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null);
+        c.add(Aaa.class, null, null);
         Bbb target = new Bbb();
         c.inject(target);
         assertThat("private field", target.getPrivateField(), not(sameInstance(Aaa.INSTANCE)));
@@ -43,7 +47,7 @@ public class ContainerTest {
     @Test
     public void test_not_inject() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null);
+        c.add(Aaa.class, null, null);
         Ccc2 target = new Ccc2();
         c.inject(target);
         assertThat("super field", target.getSuperField(), not(sameInstance(Aaa.INSTANCE)));
@@ -100,9 +104,9 @@ public class ContainerTest {
     @Test
     public void test_getInstance_andinject() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null);
-        c.add(Fff.class, null);
-        Fff instance = c.getInstance(Fff.class);
+        c.add(Aaa.class, null, null);
+        c.add(Fff.class, null, null);
+        Fff instance = c.getInstance(Fff.class, null);
         assertThat("instance", instance, notNullValue());
         assertThat("field injection", instance.getField(), not(sameInstance(Aaa.INSTANCE)));
         assertThat("method injection", instance.getMethod(), not(sameInstance(Aaa.INSTANCE)));
@@ -111,9 +115,9 @@ public class ContainerTest {
     @Test
     public void test_constructor_injection() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null);
-        c.add(Ggg.class, null);
-        Ggg instance = c.getInstance(Ggg.class);
+        c.add(Aaa.class, null, null);
+        c.add(Ggg.class, null, null);
+        Ggg instance = c.getInstance(Ggg.class, null);
         assertThat("instance", instance, notNullValue());
         assertThat("constructor injection", instance.aaa, not(sameInstance(Aaa.INSTANCE)));
     }
@@ -121,9 +125,23 @@ public class ContainerTest {
     @Test
     public void test_getInstance_by_interface() throws Exception {
         Container c = newContainer();
-        c.add(Hhh1.class, Hhh2.class);
-        Hhh1 instance = c.getInstance(Hhh1.class);
+        c.add(Hhh1.class, null, Hhh2.class);
+        Hhh1 instance = c.getInstance(Hhh1.class, null);
         assertThat(instance, instanceOf(Hhh2.class));
+    }
+    @Iii1
+    Object withIii1;
+
+    @Test
+    public void test_getInstance_by_qualifier() throws Exception {
+        Annotation iii1 = ContainerTest.class.getDeclaredField("withIii1").getAnnotation(Iii1.class);
+        Container c = newContainer();
+        c.add(Iii2.class, null, null);
+        c.add(Iii2.class, iii1, Iii3.class);
+        Iii2 instance1 = c.getInstance(Iii2.class, null);
+        Iii2 instance2 = c.getInstance(Iii2.class, iii1);
+        assertThat(instance1, not(instanceOf(Iii3.class)));
+        assertThat(instance2, instanceOf(Iii3.class));
     }
 
     protected Container newContainer() {

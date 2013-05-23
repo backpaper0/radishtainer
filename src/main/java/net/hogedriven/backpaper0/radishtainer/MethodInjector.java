@@ -26,7 +26,7 @@ public class MethodInjector extends Injector {
         Object[] dependencies = new Object[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
             Class<?> type = parameterTypes[i];
-            dependencies[i] = container.getInstance(type);
+            dependencies[i] = container.getInstance(type, null);
         }
         if (Modifier.isPublic(method.getModifiers()) == false
                 && method.isAccessible() == false) {

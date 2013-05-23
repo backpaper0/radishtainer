@@ -3,7 +3,10 @@ package net.hogedriven.backpaper0.radishtainer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Stage;
+import com.google.inject.binder.LinkedBindingBuilder;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +19,8 @@ public class GuiceTest extends ContainerTest {
 
                 Class<T> type;
 
+                Annotation qualifier;
+
                 Class<? extends T> impl;
 
             }
@@ -24,16 +29,23 @@ public class GuiceTest extends ContainerTest {
             private Injector injector;
 
             @Override
-            public <T> void add(Class<T> type, Class<? extends T> impl) {
+            public <T> void add(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
                 TypeAndImpl<T> tai = new TypeAndImpl();
                 tai.type = type;
+                tai.qualifier = qualifier;
                 tai.impl = impl;
                 types.add(tai);
             }
 
             @Override
-            public <T> T getInstance(Class<T> type) {
-                return getInjector().getInstance(type);
+            public <T> T getInstance(Class<T> type, Annotation qualifier) {
+                Key<T> key;
+                if (qualifier != null) {
+                    key = Key.get(type, qualifier);
+                } else {
+                    key = Key.get(type);
+                }
+                return getInjector().getInstance(key);
             }
 
             @Override
@@ -52,10 +64,14 @@ public class GuiceTest extends ContainerTest {
                         }
 
                         private <T> void bind(TypeAndImpl<T> tai) {
-                            if (tai.impl != null) {
-                                bind(tai.type).to(tai.impl);
+                            LinkedBindingBuilder<T> builder;
+                            if (tai.qualifier != null) {
+                                builder = bind(Key.get(tai.type, tai.qualifier));
                             } else {
-                                bind(tai.type);
+                                builder = bind(Key.get(tai.type));
+                            }
+                            if (tai.impl != null) {
+                                builder.to(tai.impl);
                             }
                         }
                     });
