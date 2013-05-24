@@ -6,12 +6,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Provider;
 
 public class Container {
 
     private List<Descriptor<?>> descriptors = new ArrayList<>();
+
+    private Map<Descriptor<?>, Object> singletonCache = new HashMap<>();
 
     public <T> void add(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
         Descriptor<T> descriptor = new Descriptor<>(type, qualifier, impl);
@@ -21,8 +25,17 @@ public class Container {
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
         for (Descriptor<?> descriptor : descriptors) {
             if (descriptor.match(type, qualifier)) {
-                Object instance = newInstance(descriptor);
-                inject(instance);
+                Object instance = null;
+                if (descriptor.isSingleton()) {
+                    instance = singletonCache.get(descriptor);
+                }
+                if (instance == null) {
+                    instance = newInstance(descriptor);
+                    inject(instance);
+                    if (descriptor.isSingleton()) {
+                        singletonCache.put(descriptor, instance);
+                    }
+                }
                 return (T) instance;
             }
         }

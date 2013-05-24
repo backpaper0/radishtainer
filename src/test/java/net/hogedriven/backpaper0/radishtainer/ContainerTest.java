@@ -16,6 +16,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Iii2;
 import net.hogedriven.backpaper0.radishtainer.test.Iii3;
 import net.hogedriven.backpaper0.radishtainer.test.Jjj;
 import net.hogedriven.backpaper0.radishtainer.test.Kkk;
+import net.hogedriven.backpaper0.radishtainer.test.Lll;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -185,6 +186,24 @@ public class ContainerTest {
         assertThat("instance constructor", instance.getConstructor().get(), notNullValue());
         assertThat("provider method", instance.getMethod(), not(sameInstance(Kkk.PROVIDER)));
         assertThat("instance method", instance.getMethod().get(), notNullValue());
+    }
+
+    @Test
+    public void test_getInstance_default_scope() throws Exception {
+        Container c = newContainer();
+        c.add(Aaa.class, null, null);
+        Aaa instance1 = c.getInstance(Aaa.class, null);
+        Aaa instance2 = c.getInstance(Aaa.class, null);
+        assertThat(instance1, not(sameInstance(instance2)));
+    }
+
+    @Test
+    public void test_getInstance_singleton_scope() throws Exception {
+        Container c = newContainer();
+        c.add(Lll.class, null, null);
+        Lll instance1 = c.getInstance(Lll.class, null);
+        Lll instance2 = c.getInstance(Lll.class, null);
+        assertThat(instance1, sameInstance(instance2));
     }
 
     protected Container newContainer() {
