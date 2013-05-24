@@ -3,7 +3,10 @@ package net.hogedriven.backpaper0.radishtainer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 public class FieldInjector extends Injector {
@@ -22,13 +25,21 @@ public class FieldInjector extends Injector {
     @Override
     public Object inject(Container container, Object target) {
         Class<?> type = field.getType();
+        Type genericType = field.getGenericType();
         Annotation qualifier = null;
         for (Annotation annotation : field.getDeclaredAnnotations()) {
             if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
                 qualifier = annotation;
             }
         }
-        Object dependency = container.getInstance(type, qualifier);
+        Object dependency;
+        if (type == Provider.class) {
+            ParameterizedType pt = (ParameterizedType) genericType;
+            Class<?> type2 = (Class<?>) pt.getActualTypeArguments()[0];
+            dependency = container.getProvider(type2, qualifier);
+        } else {
+            dependency = container.getInstance(type, qualifier);
+        }
         if (Modifier.isPublic(field.getModifiers()) == false
                 && field.isAccessible() == false) {
             field.setAccessible(true);

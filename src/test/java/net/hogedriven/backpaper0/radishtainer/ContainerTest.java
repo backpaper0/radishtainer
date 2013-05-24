@@ -15,6 +15,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Iii1;
 import net.hogedriven.backpaper0.radishtainer.test.Iii2;
 import net.hogedriven.backpaper0.radishtainer.test.Iii3;
 import net.hogedriven.backpaper0.radishtainer.test.Jjj;
+import net.hogedriven.backpaper0.radishtainer.test.Kkk;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -169,6 +170,21 @@ public class ContainerTest {
         Provider<Aaa> provider = c.getProvider(Aaa.class, null);
         assertThat("provider", provider, notNullValue());
         assertThat("instance", provider.get(), notNullValue());
+    }
+
+    @Test
+    public void test_inject_provider() throws Exception {
+        Container c = newContainer();
+        c.add(Aaa.class, null, null);
+        c.add(Kkk.class, null, null);
+        Kkk instance = c.getInstance(Kkk.class, null);
+
+        assertThat("provider field", instance.getField(), not(sameInstance(Kkk.PROVIDER)));
+        assertThat("instance field", instance.getField().get(), notNullValue());
+        assertThat("provider constructor", instance.getConstructor(), not(sameInstance(Kkk.PROVIDER)));
+        assertThat("instance constructor", instance.getConstructor().get(), notNullValue());
+        assertThat("provider method", instance.getMethod(), not(sameInstance(Kkk.PROVIDER)));
+        assertThat("instance method", instance.getMethod().get(), notNullValue());
     }
 
     protected Container newContainer() {
