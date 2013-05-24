@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.inject.Provider;
 
 public class Container {
 
@@ -26,6 +27,15 @@ public class Container {
             }
         }
         throw new RuntimeException();
+    }
+
+    public <T> Provider<T> getProvider(final Class<T> type, final Annotation qualifier) {
+        return new Provider<T>() {
+            @Override
+            public T get() {
+                return getInstance(type, qualifier);
+            }
+        };
     }
 
     private Object newInstance(Descriptor<?> descriptor) {

@@ -1,6 +1,7 @@
 package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.annotation.Annotation;
+import javax.inject.Provider;
 import net.hogedriven.backpaper0.radishtainer.test.Aaa;
 import net.hogedriven.backpaper0.radishtainer.test.Bbb;
 import net.hogedriven.backpaper0.radishtainer.test.Ccc2;
@@ -159,6 +160,15 @@ public class ContainerTest {
         assertThat("constructor with qualifier", instance.getConstructorWithQualifier(), instanceOf(Iii3.class));
         assertThat("method plain", instance.getMethodPlain(), not(instanceOf(Iii3.class)));
         assertThat("method with qualifier", instance.getMethodWithQualifier(), instanceOf(Iii3.class));
+    }
+
+    @Test
+    public void test_getProvider() throws Exception {
+        Container c = newContainer();
+        c.add(Aaa.class, null, null);
+        Provider<Aaa> provider = c.getProvider(Aaa.class, null);
+        assertThat("provider", provider, notNullValue());
+        assertThat("instance", provider.get(), notNullValue());
     }
 
     protected Container newContainer() {
