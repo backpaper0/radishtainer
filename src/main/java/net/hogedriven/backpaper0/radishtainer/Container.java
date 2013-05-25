@@ -16,10 +16,23 @@ public class Container {
 
     private Map<Descriptor<?>, Class<?>> descriptors = new HashMap<>();
 
-    private Map<Class<? extends Annotation>, SingletonScope> scopes = new HashMap<>();
+    private Scope defaultScope = new Scope() {
+        @Override
+        public Object getInstance(Container container, Class<?> impl) {
+            Object instance = container.newInstance(impl);
+            inject(instance);
+            return instance;
+        }
+    };
+
+    private Map<Class<? extends Annotation>, Scope> scopes = new HashMap<>();
 
     public Container() {
-        scopes.put(Singleton.class, new SingletonScope());
+        addScope(Singleton.class, new SingletonScope());
+    }
+
+    public void addScope(Class<? extends Annotation> annotationType, Scope scope) {
+        scopes.put(annotationType, scope);
     }
 
     public <T> void add(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
@@ -30,18 +43,20 @@ public class Container {
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
         Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
         Class<?> impl = descriptors.get(descriptor);
-        Class<? extends Annotation> scope = null;
+        Scope scope = findScope(impl);
+        Object instance = scope.getInstance(this, impl);
+        return (T) instance;
+    }
+
+    private Scope findScope(Class<?> impl) {
         for (Annotation annotation : impl.getAnnotations()) {
-            if (annotation.annotationType().isAnnotationPresent(javax.inject.Scope.class)) {
-                scope = annotation.annotationType();
+            Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (annotationType.isAnnotationPresent(javax.inject.Scope.class)) {
+                Scope scope = scopes.get(annotationType);
+                return scope;
             }
         }
-        if (scope != null) {
-            return (T) scopes.get(scope).getInstance(this, impl);
-        }
-        Object instance = newInstance(impl);
-        inject(instance);
-        return (T) instance;
+        return defaultScope;
     }
 
     public <T> Provider<T> getProvider(final Class<T> type, final Annotation qualifier) {
