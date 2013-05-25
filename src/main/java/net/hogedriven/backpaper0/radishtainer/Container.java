@@ -16,6 +16,8 @@ public class Container {
 
     private Map<Descriptor<?>, Class<?>> descriptors = new HashMap<>();
 
+    private Map<Descriptor<?>, Object> instances = new HashMap<>();
+
     private Scope defaultScope = new Scope() {
         @Override
         public Object getInstance(Container container, Class<?> impl) {
@@ -40,11 +42,21 @@ public class Container {
         descriptors.put(descriptor, impl != null ? impl : type);
     }
 
+    public <T> void addInstance(Class<T> type, Annotation qualifier, T instance) {
+        Descriptor<T> descriptor = new Descriptor<>(type, qualifier);
+        instances.put(descriptor, instance);
+    }
+
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
         Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
-        Class<?> impl = descriptors.get(descriptor);
-        Scope scope = findScope(impl);
-        Object instance = scope.getInstance(this, impl);
+        Object instance = instances.get(descriptor);
+        if (instance != null) {
+            inject(instance);
+        } else {
+            Class<?> impl = descriptors.get(descriptor);
+            Scope scope = findScope(impl);
+            instance = scope.getInstance(this, impl);
+        }
         return (T) instance;
     }
 

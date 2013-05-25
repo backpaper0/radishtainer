@@ -9,8 +9,14 @@ import com.google.inject.binder.LinkedBindingBuilder;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Ignore;
 
 public class GuiceTest extends ContainerTest {
+
+    @Ignore
+    @Override
+    public void test_addInstance() throws Exception {
+    }
 
     @Override
     protected Container newContainer() {
