@@ -10,29 +10,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 public class Container {
 
-    private List<Descriptor<?>> descriptors = new ArrayList<>();
+    private Map<Descriptor<?>, Class<?>> descriptors = new HashMap<>();
 
     private Map<Descriptor<?>, Object> singletonCache = new HashMap<>();
 
     public <T> void add(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
-        Descriptor<T> descriptor = new Descriptor<>(type, qualifier, impl);
-        descriptors.add(descriptor);
+        Descriptor<T> descriptor = new Descriptor<>(type, qualifier);
+        descriptors.put(descriptor, impl != null ? impl : type);
     }
 
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
-        for (Descriptor<?> descriptor : descriptors) {
+        for (Descriptor<?> descriptor : descriptors.keySet()) {
             if (descriptor.match(type, qualifier)) {
+                Class<?> impl = descriptors.get(descriptor);
+                boolean isSingleton = false;
+                for (Annotation annotation : impl.getAnnotations()) {
+                    if (annotation.annotationType() == Singleton.class) {
+                        isSingleton = true;
+                        break;
+                    }
+                }
                 Object instance = null;
-                if (descriptor.isSingleton()) {
+                if (isSingleton) {
                     instance = singletonCache.get(descriptor);
                 }
                 if (instance == null) {
                     instance = newInstance(descriptor);
                     inject(instance);
-                    if (descriptor.isSingleton()) {
+                    if (isSingleton) {
                         singletonCache.put(descriptor, instance);
                     }
                 }
@@ -52,7 +61,7 @@ public class Container {
     }
 
     private Object newInstance(Descriptor<?> descriptor) {
-        Class<?> clazz = descriptor.impl;
+        Class<?> clazz = descriptors.get(descriptor);
         List<Injector> injectors = new ArrayList<>();
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
             Injector injector = new ConstructorInjector(constructor);

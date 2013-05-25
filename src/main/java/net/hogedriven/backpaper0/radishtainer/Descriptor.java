@@ -2,7 +2,6 @@ package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.annotation.Annotation;
 import java.util.Objects;
-import javax.inject.Singleton;
 
 public class Descriptor<T> {
 
@@ -10,13 +9,9 @@ public class Descriptor<T> {
 
     private final Annotation qualifier;
 
-    //TODO private
-    final Class<? extends T> impl;
-
-    public Descriptor(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
+    public Descriptor(Class<T> type, Annotation qualifier) {
         this.type = type;
         this.qualifier = qualifier;
-        this.impl = impl != null ? impl : type;
     }
 
     public boolean match(Class<?> type, Annotation qualifier) {
@@ -30,16 +25,11 @@ public class Descriptor<T> {
         }
         Descriptor<?> other = (Descriptor<?>) obj;
         return Objects.equals(type, other.type)
-                && Objects.equals(qualifier, other.qualifier)
-                && Objects.equals(impl, other.impl);
+                && Objects.equals(qualifier, other.qualifier);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, qualifier, impl);
-    }
-
-    boolean isSingleton() {
-        return impl.getAnnotation(Singleton.class) != null;
+        return Objects.hash(type, qualifier);
     }
 }
