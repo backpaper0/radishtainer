@@ -24,31 +24,27 @@ public class Container {
     }
 
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
-        for (Descriptor<?> descriptor : descriptors.keySet()) {
-            if (descriptor.match(type, qualifier)) {
-                Class<?> impl = descriptors.get(descriptor);
-                boolean isSingleton = false;
-                for (Annotation annotation : impl.getAnnotations()) {
-                    if (annotation.annotationType() == Singleton.class) {
-                        isSingleton = true;
-                        break;
-                    }
-                }
-                Object instance = null;
-                if (isSingleton) {
-                    instance = singletonCache.get(descriptor);
-                }
-                if (instance == null) {
-                    instance = newInstance(descriptor);
-                    inject(instance);
-                    if (isSingleton) {
-                        singletonCache.put(descriptor, instance);
-                    }
-                }
-                return (T) instance;
+        Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
+        Class<?> impl = descriptors.get(descriptor);
+        boolean isSingleton = false;
+        for (Annotation annotation : impl.getAnnotations()) {
+            if (annotation.annotationType() == Singleton.class) {
+                isSingleton = true;
+                break;
             }
         }
-        throw new RuntimeException();
+        Object instance = null;
+        if (isSingleton) {
+            instance = singletonCache.get(descriptor);
+        }
+        if (instance == null) {
+            instance = newInstance(descriptor);
+            inject(instance);
+            if (isSingleton) {
+                singletonCache.put(descriptor, instance);
+            }
+        }
+        return (T) instance;
     }
 
     public <T> Provider<T> getProvider(final Class<T> type, final Annotation qualifier) {

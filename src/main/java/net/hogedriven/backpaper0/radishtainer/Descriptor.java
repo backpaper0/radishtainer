@@ -14,10 +14,6 @@ public class Descriptor<T> {
         this.qualifier = qualifier;
     }
 
-    public boolean match(Class<?> type, Annotation qualifier) {
-        return this.type == type && Objects.equals(this.qualifier, qualifier);
-    }
-
     @Override
     public boolean equals(Object obj) {
         if ((obj instanceof Descriptor) == false) {
