@@ -20,10 +20,8 @@ public class Container {
 
     private Scope defaultScope = new Scope() {
         @Override
-        public Object getInstance(Container container, Class<?> impl) {
-            Object instance = container.newInstance(impl);
-            inject(instance);
-            return instance;
+        public Object getInstance(Instantiator instantiator, Class<?> impl) {
+            return instantiator.newInstance();
         }
     };
 
@@ -55,7 +53,8 @@ public class Container {
         } else {
             Class<?> impl = descriptors.get(descriptor);
             Scope scope = findScope(impl);
-            instance = scope.getInstance(this, impl);
+            Instantiator instantiator = new Instantiator(this, impl);
+            instance = scope.getInstance(instantiator, impl);
         }
         return (T) instance;
     }
