@@ -30,9 +30,9 @@ public abstract class Injector {
         return dependency;
     }
 
-    protected Object[] getDependencies(Container container, Class<?>[] types, Type[] genericTypes, Annotation[][] annotations) {
+    protected Object[] getDependencies(Container container, Class<?>[] types, Type[] genericTypes, Annotation[][] annotations, int startIndex) {
         Object[] dependencies = new Object[types.length];
-        for (int i = 0; i < types.length; i++) {
+        for (int i = startIndex; i < types.length; i++) {
             dependencies[i] = getDependency(container, types[i], genericTypes[i], annotations[i]);
         }
         return dependencies;

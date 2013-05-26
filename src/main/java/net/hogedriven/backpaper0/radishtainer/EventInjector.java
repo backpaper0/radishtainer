@@ -7,12 +7,15 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import javax.inject.Inject;
 
-public class MethodInjector extends Injector {
+public class EventInjector extends Injector {
 
     private final Method method;
 
-    public MethodInjector(Method method) {
+    private final Object event;
+
+    public EventInjector(Method method, Object event) {
         this.method = method;
+        this.event = event;
     }
 
     @Override
@@ -25,7 +28,8 @@ public class MethodInjector extends Injector {
         Class<?>[] types = method.getParameterTypes();
         Type[] genericTypes = method.getGenericParameterTypes();
         Annotation[][] annotations = method.getParameterAnnotations();
-        Object[] dependencies = getDependencies(container, types, genericTypes, annotations, 0);
+        Object[] dependencies = getDependencies(container, types, genericTypes, annotations, 1);
+        dependencies[0] = event;
         if (Modifier.isPublic(method.getModifiers()) == false
                 && method.isAccessible() == false) {
             method.setAccessible(true);

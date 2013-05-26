@@ -3,7 +3,6 @@ package net.hogedriven.backpaper0.radishtainer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -134,11 +133,9 @@ public class Container {
             for (List<Method> methods : handleable.allMethods) {
                 for (Method method : methods) {
                     Class<?>[] types = method.getParameterTypes();
-                    Type[] genericTypes = method.getGenericParameterTypes();
-                    Annotation[][] annotations = method.getParameterAnnotations();
                     if (types.length > 0 && method.getParameterTypes()[0] == event.getClass()) {
                         boolean b = false;
-                        for (Annotation annotation : annotations[0]) {
+                        for (Annotation annotation : method.getParameterAnnotations()[0]) {
                             if (annotation.annotationType() == Observes.class) {
                                 b = true;
                             }
@@ -146,49 +143,13 @@ public class Container {
                         if (b) {
                             Descriptor<?> descriptor = entry.getKey();
                             Object instance = getInstance(descriptor);
-                            Object[] dependencies = getDependencies(this, types, genericTypes, annotations, 1);
-                            dependencies[0] = event;
-                            if (method.isAccessible() == false) {
-                                method.setAccessible(true);
-                            }
-                            try {
-                                method.invoke(instance, dependencies);
-                            } catch (IllegalAccessException e) {
-                                throw new RuntimeException(e);
-                            } catch (InvocationTargetException e) {
-                                throw new RuntimeException(e.getCause());
-                            }
+                            Injector injector = new EventInjector(method, event);
+                            injector.inject(this, instance);
                         }
                     }
                 }
             }
         }
-    }
-
-    protected Object getDependency(Container container, Class<?> type, Type genericType, Annotation[] annotations) {
-        Annotation qualifier = null;
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
-                qualifier = annotation;
-            }
-        }
-        Object dependency;
-        if (type == Provider.class) {
-            ParameterizedType pt = (ParameterizedType) genericType;
-            Class<?> type2 = (Class<?>) pt.getActualTypeArguments()[0];
-            dependency = container.getProvider(type2, qualifier);
-        } else {
-            dependency = container.getInstance(type, qualifier);
-        }
-        return dependency;
-    }
-
-    protected Object[] getDependencies(Container container, Class<?>[] types, Type[] genericTypes, Annotation[][] annotations, int startIndex) {
-        Object[] dependencies = new Object[types.length];
-        for (int i = startIndex; i < types.length; i++) {
-            dependencies[i] = getDependency(container, types[i], genericTypes[i], annotations[i]);
-        }
-        return dependencies;
     }
 
     private ClassInfo getClassInfo(Class<?> c) {

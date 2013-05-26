@@ -25,7 +25,7 @@ public class ConstructorInjector extends Injector {
         Class<?>[] types = constructor.getParameterTypes();
         Type[] genericTypes = constructor.getGenericParameterTypes();
         Annotation[][] annotations = constructor.getParameterAnnotations();
-        Object[] dependencies = getDependencies(container, types, genericTypes, annotations);
+        Object[] dependencies = getDependencies(container, types, genericTypes, annotations, 0);
         if (Modifier.isPublic(constructor.getModifiers()) == false
                 && constructor.isAccessible() == false) {
             constructor.setAccessible(true);
