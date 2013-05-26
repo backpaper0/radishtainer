@@ -19,6 +19,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Kkk;
 import net.hogedriven.backpaper0.radishtainer.test.Lll;
 import net.hogedriven.backpaper0.radishtainer.test.Mmm;
 import net.hogedriven.backpaper0.radishtainer.test.Nnn;
+import net.hogedriven.backpaper0.radishtainer.test.Ooo2;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -229,6 +230,20 @@ public class ContainerTest {
         Aaa event = new Aaa();
         c.fireEvent(event);
         assertThat(instance.aaa, sameInstance(event));
+    }
+
+    @Test
+    public void test_event_inheritance() throws Exception {
+        Container c = newContainer();
+        c.add(Ooo2.class, null, null);
+        Ooo2 instance = c.getInstance(Ooo2.class, null);
+        c.fireEvent(new Aaa());
+        assertThat("super @Observers", instance.withAtObserversSuper, is(false));
+        assertThat("super no annotation", instance.noAtObserversSuper, is(false));
+        assertThat("sub @Observers", instance.withAtObserversSub, is(true));
+        assertThat("sub no annotation", instance.noAtObserversSub, is(false));
+        assertThat("super no overrided", instance.noOverridedSuper, is(true));
+        assertThat("sub no overrided", instance.noOverridedSub, is(true));
     }
 
     protected Container newContainer() {

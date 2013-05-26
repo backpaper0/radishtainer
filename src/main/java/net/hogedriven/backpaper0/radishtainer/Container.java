@@ -125,27 +125,30 @@ public class Container {
     public void fireEvent(Object event) {
         for (Map.Entry<Descriptor<?>, Class<?>> entry : descriptors.entrySet()) {
             Class<?> impl = entry.getValue();
-            for (Method method : impl.getDeclaredMethods()) {
-                if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == event.getClass()) {
-                    boolean b = false;
-                    Annotation[] annotations = method.getParameterAnnotations()[0];
-                    for (Annotation annotation : annotations) {
-                        if (annotation.annotationType() == Observes.class) {
-                            b = true;
+            ClassInfo handleable = new ClassInfo(impl);
+            for (List<Method> methods : handleable.allMethods) {
+                for (Method method : methods) {
+                    if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == event.getClass()) {
+                        boolean b = false;
+                        Annotation[] annotations = method.getParameterAnnotations()[0];
+                        for (Annotation annotation : annotations) {
+                            if (annotation.annotationType() == Observes.class) {
+                                b = true;
+                            }
                         }
-                    }
-                    if (b) {
-                        Descriptor<?> descriptor = entry.getKey();
-                        Object instance = getInstance(descriptor);
-                        if (method.isAccessible() == false) {
-                            method.setAccessible(true);
-                        }
-                        try {
-                            method.invoke(instance, event);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException(e.getCause());
+                        if (b) {
+                            Descriptor<?> descriptor = entry.getKey();
+                            Object instance = getInstance(descriptor);
+                            if (method.isAccessible() == false) {
+                                method.setAccessible(true);
+                            }
+                            try {
+                                method.invoke(instance, event);
+                            } catch (IllegalAccessException e) {
+                                throw new RuntimeException(e);
+                            } catch (InvocationTargetException e) {
+                                throw new RuntimeException(e.getCause());
+                            }
                         }
                     }
                 }
