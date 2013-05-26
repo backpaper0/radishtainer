@@ -41,6 +41,9 @@ public class Container {
 
     public <T> void add(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
         Descriptor<T> descriptor = new Descriptor<>(type, qualifier);
+        if (descriptors.containsKey(descriptor)) {
+            throw new RuntimeException();
+        }
         descriptors.put(descriptor, impl != null ? impl : type);
     }
 

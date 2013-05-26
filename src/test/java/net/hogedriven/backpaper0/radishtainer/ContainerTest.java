@@ -34,8 +34,13 @@ import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 
 public class ContainerTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void test_getInstance() throws Exception {
@@ -311,6 +316,14 @@ public class ContainerTest {
         TimeUnit.MILLISECONDS.sleep(100L);
         Rrr.start.countDown();
         assertThat(future1.get(), sameInstance(future2.get()));
+    }
+
+    @Test
+    public void test_error_duplicate() throws Exception {
+        final Container c = newContainer();
+        c.add(Aaa.class, null, null);
+        expectedException.expect(RuntimeException.class);
+        c.add(Aaa.class, null, null);
     }
 
     protected Container newContainer() {
