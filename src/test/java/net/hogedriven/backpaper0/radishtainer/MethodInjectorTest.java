@@ -87,35 +87,30 @@ public class MethodInjectorTest {
 
         @Test
         public void test_privateMethod() throws Exception {
-            MethodInjector superInjector = newInjector(superClass, "privateMethod");
-            MethodInjector subInjector = newInjector(subClass, "privateMethod");
-            assertThat(subInjector.isOverrideForm(superInjector), is(privateMethodExpected));
+            Method superMethod = superClass.getDeclaredMethod("privateMethod");
+            Method subMethod = subClass.getDeclaredMethod("privateMethod");
+            assertThat(Container.isOverrideForm(subMethod, superMethod), is(privateMethodExpected));
         }
 
         @Test
         public void test_packagePrivateMethod() throws Exception {
-            MethodInjector superInjector = newInjector(superClass, "packagePrivateMethod");
-            MethodInjector subInjector = newInjector(subClass, "packagePrivateMethod");
-            assertThat(subInjector.isOverrideForm(superInjector), is(packagePrivateMethodExpected));
+            Method superMethod = superClass.getDeclaredMethod("packagePrivateMethod");
+            Method subMethod = subClass.getDeclaredMethod("packagePrivateMethod");
+            assertThat(Container.isOverrideForm(subMethod, superMethod), is(packagePrivateMethodExpected));
         }
 
         @Test
         public void test_protectedMethod() throws Exception {
-            MethodInjector superInjector = newInjector(superClass, "protectedMethod");
-            MethodInjector subInjector = newInjector(subClass, "protectedMethod");
-            assertThat(subInjector.isOverrideForm(superInjector), is(protectedMethodExpected));
+            Method superMethod = superClass.getDeclaredMethod("protectedMethod");
+            Method subMethod = subClass.getDeclaredMethod("protectedMethod");
+            assertThat(Container.isOverrideForm(subMethod, superMethod), is(protectedMethodExpected));
         }
 
         @Test
         public void test_publicMethod() throws Exception {
-            MethodInjector superInjector = newInjector(superClass, "publicMethod");
-            MethodInjector subInjector = newInjector(subClass, "publicMethod");
-            assertThat(subInjector.isOverrideForm(superInjector), is(publicMethodExpected));
-        }
-
-        private MethodInjector newInjector(Class<?> clazz, String methodName) throws Exception {
-            Method method = clazz.getDeclaredMethod(methodName);
-            return new MethodInjector(method);
+            Method superMethod = superClass.getDeclaredMethod("publicMethod");
+            Method subMethod = subClass.getDeclaredMethod("publicMethod");
+            assertThat(Container.isOverrideForm(subMethod, superMethod), is(publicMethodExpected));
         }
     }
 }

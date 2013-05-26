@@ -40,29 +40,4 @@ public class MethodInjector extends Injector {
             throw new RuntimeException(e.getCause());
         }
     }
-
-    public boolean isOverrideForm(MethodInjector other) {
-        if (method.getDeclaringClass() == other.method.getDeclaringClass()) {
-            return false;
-        }
-        if (other.method.getDeclaringClass().isAssignableFrom(method.getDeclaringClass()) == false) {
-            return false;
-        }
-        if (Objects.equals(method.getName(), other.method.getName()) == false) {
-            return false;
-        }
-        if (Arrays.equals(method.getParameterTypes(), other.method.getParameterTypes()) == false) {
-            return false;
-        }
-        if (Modifier.isPrivate(other.method.getModifiers())) {
-            return false;
-        }
-        if (Modifier.isProtected(other.method.getModifiers()) == false
-                && Modifier.isPublic(other.method.getModifiers()) == false
-                && Objects.equals(method.getDeclaringClass().getPackage(),
-                other.method.getDeclaringClass().getPackage()) == false) {
-            return false;
-        }
-        return true;
-    }
 }
