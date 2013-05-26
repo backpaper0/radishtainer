@@ -52,6 +52,9 @@ public class Container {
 
     public <T> void addInstance(Class<T> type, Annotation qualifier, T instance) {
         Descriptor<T> descriptor = new Descriptor<>(type, qualifier);
+        if (instances.containsKey(descriptor)) {
+            throw new RuntimeException();
+        }
         instances.put(descriptor, instance);
     }
 

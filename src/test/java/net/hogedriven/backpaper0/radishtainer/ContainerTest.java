@@ -334,6 +334,14 @@ public class ContainerTest {
         c.addScope(Qqq2.class, new Qqq1());
     }
 
+    @Test
+    public void test_error_duplicate_instance() throws Exception {
+        Container c = newContainer();
+        c.addInstance(Aaa.class, null, Aaa.INSTANCE);
+        expectedException.expect(RuntimeException.class);
+        c.addInstance(Aaa.class, null, Aaa.INSTANCE);
+    }
+
     protected Container newContainer() {
         return new Container();
     }
