@@ -32,6 +32,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Qqq2;
 import net.hogedriven.backpaper0.radishtainer.test.Qqq3;
 import net.hogedriven.backpaper0.radishtainer.test.Rrr;
 import net.hogedriven.backpaper0.radishtainer.test.Sss;
+import net.hogedriven.backpaper0.radishtainer.test.Ttt;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -385,6 +386,13 @@ public class ContainerTest {
         Container c = newContainer();
         expectedException.expect(NoSuchElementException.class);
         c.getProvider(Iii1.class, null);
+    }
+
+    @Test
+    public void test_error_2_constructor_with_atInject() throws Exception {
+        Container c = newContainer();
+        expectedException.expect(IllegalArgumentException.class);
+        c.add(Ttt.class, null, null);
     }
 
     protected Container newContainer() {

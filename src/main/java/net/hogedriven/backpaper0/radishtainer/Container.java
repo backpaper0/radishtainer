@@ -58,12 +58,7 @@ public class Container {
             throw new RuntimeException();
         }
         impl = impl != null ? impl : type;
-        if (impl.isInterface()) {
-            throw new IllegalArgumentException();
-        }
-        if (impl.isEnum()) {
-            throw new IllegalArgumentException();
-        }
+        check(impl);
         descriptors.put(descriptor, impl);
     }
 
@@ -93,6 +88,34 @@ public class Container {
     private void check(Descriptor<?> descriptor) {
         if (instances.containsKey(descriptor) == false && descriptors.containsKey(descriptor) == false) {
             throw new NoSuchElementException();
+        }
+    }
+
+    private void check(Class<?> impl) {
+        if (impl.isInterface()) {
+            throw new IllegalArgumentException();
+        }
+        if (impl.isEnum()) {
+            throw new IllegalArgumentException();
+        }
+        List<Injector> injectors = new ArrayList<>();
+        for (Constructor<?> constructor : impl.getDeclaredConstructors()) {
+            Injector injector = new ConstructorInjector(constructor);
+            if (injector.isInjectable()) {
+                injectors.add(injector);
+            }
+        }
+        if (injectors.isEmpty()) {
+            try {
+                Constructor<?> constructor = impl.getDeclaredConstructor();
+                Injector injector = new ConstructorInjector(constructor);
+                injectors.add(injector);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (injectors.size() > 1) {
+            throw new IllegalArgumentException();
         }
     }
 
