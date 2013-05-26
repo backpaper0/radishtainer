@@ -35,7 +35,7 @@ public class ContainerTest {
     }
 
     @Test
-    public void test_not_inject() throws Exception {
+    public void test_inject_order() throws Exception {
         Container c = newContainer();
         c.add(Aaa.class);
         Ccc2 target = new Ccc2();
@@ -46,6 +46,7 @@ public class ContainerTest {
         assertThat("sub method", target.getSubMethod(), not(sameInstance(Aaa.INSTANCE)));
 
         assertTrue("super field < sub field", target.getSuperField().count < target.getSubField().count);
+        assertTrue("super field < sub method", target.getSuperField().count < target.getSubMethod().count);
         assertTrue("super method < sub method", target.getSuperMethod().count < target.getSubMethod().count);
         assertTrue("super method < sub field", target.getSuperMethod().count < target.getSubField().count);
     }
