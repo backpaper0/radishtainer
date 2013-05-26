@@ -21,6 +21,9 @@ import net.hogedriven.backpaper0.radishtainer.test.Mmm;
 import net.hogedriven.backpaper0.radishtainer.test.Nnn;
 import net.hogedriven.backpaper0.radishtainer.test.Ooo2;
 import net.hogedriven.backpaper0.radishtainer.test.Ppp;
+import net.hogedriven.backpaper0.radishtainer.test.Qqq1;
+import net.hogedriven.backpaper0.radishtainer.test.Qqq2;
+import net.hogedriven.backpaper0.radishtainer.test.Qqq3;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -267,6 +270,23 @@ public class ContainerTest {
         assertThat("event", instance.event, sameInstance(event));
         assertThat("injected", instance.injected, sameInstance(injected));
         assertThat("with qualifier", instance.withQualifier, sameInstance(withQualifier));
+    }
+
+    @Test
+    public void test_custom_scope() throws Exception {
+        Container c = newContainer();
+        c.addScope(Qqq2.class, new Qqq1());
+        c.add(Qqq3.class, null, null);
+
+        c.fireEvent(new Aaa());
+        Qqq3 instance1 = c.getInstance(Qqq3.class, null);
+        Qqq3 instance2 = c.getInstance(Qqq3.class, null);
+
+        c.fireEvent(new Aaa());
+        Qqq3 instance3 = c.getInstance(Qqq3.class, null);
+
+        assertThat("same scope", instance1, sameInstance(instance2));
+        assertThat("difference scope", instance1, not(sameInstance(instance3)));
     }
 
     protected Container newContainer() {

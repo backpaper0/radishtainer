@@ -38,6 +38,8 @@ public class Container {
 
     public void addScope(Class<? extends Annotation> annotationType, Scope scope) {
         scopes.put(annotationType, scope);
+        Class<Scope> type = (Class<Scope>) scope.getClass();
+        addInstance(type, null, scope);
     }
 
     public <T> void add(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
@@ -128,24 +130,33 @@ public class Container {
 
     public void fireEvent(Object event) {
         for (Map.Entry<Descriptor<?>, Class<?>> entry : descriptors.entrySet()) {
+            Descriptor<?> descriptor = entry.getKey();
             Class<?> impl = entry.getValue();
-            ClassInfo handleable = getClassInfo(impl);
-            for (List<Method> methods : handleable.allMethods) {
-                for (Method method : methods) {
-                    Class<?>[] types = method.getParameterTypes();
-                    if (types.length > 0 && method.getParameterTypes()[0] == event.getClass()) {
-                        boolean b = false;
-                        for (Annotation annotation : method.getParameterAnnotations()[0]) {
-                            if (annotation.annotationType() == Observes.class) {
-                                b = true;
-                            }
+            fireEvent(impl, event, descriptor);
+        }
+        for (Map.Entry<Descriptor<?>, Object> entry : instances.entrySet()) {
+            Descriptor<?> descriptor = entry.getKey();
+            Class<?> impl = entry.getValue().getClass();
+            fireEvent(impl, event, descriptor);
+        }
+    }
+
+    private void fireEvent(Class<?> impl, Object event, Descriptor<?> descriptor) {
+        ClassInfo handleable = getClassInfo(impl);
+        for (List<Method> methods : handleable.allMethods) {
+            for (Method method : methods) {
+                Class<?>[] types = method.getParameterTypes();
+                if (types.length > 0 && method.getParameterTypes()[0] == event.getClass()) {
+                    boolean b = false;
+                    for (Annotation annotation : method.getParameterAnnotations()[0]) {
+                        if (annotation.annotationType() == Observes.class) {
+                            b = true;
                         }
-                        if (b) {
-                            Descriptor<?> descriptor = entry.getKey();
-                            Object instance = getInstance(descriptor);
-                            Injector injector = new EventInjector(method, event);
-                            injector.inject(this, instance);
-                        }
+                    }
+                    if (b) {
+                        Object instance = getInstance(descriptor);
+                        Injector injector = new EventInjector(method, event);
+                        injector.inject(this, instance);
                     }
                 }
             }
