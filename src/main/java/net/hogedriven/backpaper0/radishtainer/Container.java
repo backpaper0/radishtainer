@@ -34,6 +34,9 @@ public class Container {
     }
 
     public void addScope(Class<? extends Annotation> annotationType, Scope scope) {
+        if (scopes.containsKey(annotationType)) {
+            throw new RuntimeException();
+        }
         scopes.put(annotationType, scope);
         Class<Scope> type = (Class<Scope>) scope.getClass();
         addInstance(type, null, scope);

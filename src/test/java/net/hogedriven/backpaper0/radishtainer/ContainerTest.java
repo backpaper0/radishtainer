@@ -326,6 +326,14 @@ public class ContainerTest {
         c.add(Aaa.class, null, null);
     }
 
+    @Test
+    public void test_error_duplicate_scope() throws Exception {
+        Container c = newContainer();
+        c.addScope(Qqq2.class, new Qqq1());
+        expectedException.expect(RuntimeException.class);
+        c.addScope(Qqq2.class, new Qqq1());
+    }
+
     protected Container newContainer() {
         return new Container();
     }
