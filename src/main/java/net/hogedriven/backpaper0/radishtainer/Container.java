@@ -5,14 +5,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import net.hogedriven.backpaper0.radishtainer.event.Observes;
@@ -109,72 +105,21 @@ public class Container {
     }
 
     public void inject(Object target) {
-        List<Class<?>> classes = new ArrayList<>();
-        for (Class<?> clazz = target.getClass(); clazz != Object.class; clazz = clazz.getSuperclass()) {
-            classes.add(clazz);
-        }
-        Collections.reverse(classes);
-        List<List<Field>> allFields = new ArrayList<>();
-        List<List<Method>> allMethods = new ArrayList<>();
-        for (Class<?> clazz : classes) {
-            allFields.add(Arrays.asList(clazz.getDeclaredFields()));
-            List<Method> methods = new ArrayList<>();
-            for (Method method : clazz.getDeclaredMethods()) {
-                removeOverrided(allMethods, method);
-                methods.add(method);
-            }
-            allMethods.add(methods);
-        }
-        for (int i = 0; i < allFields.size(); i++) {
-            for (Field field : allFields.get(i)) {
+        ClassInfo injectable = new ClassInfo(target.getClass());
+        for (int i = 0; i < injectable.allFields.size(); i++) {
+            for (Field field : injectable.allFields.get(i)) {
                 Injector injector = new FieldInjector(field);
                 if (injector.isInjectable()) {
                     injector.inject(this, target);
                 }
             }
-            for (Method method : allMethods.get(i)) {
+            for (Method method : injectable.allMethods.get(i)) {
                 Injector injector = new MethodInjector(method);
                 if (injector.isInjectable()) {
                     injector.inject(this, target);
                 }
             }
         }
-    }
-
-    private void removeOverrided(List<List<Method>> allMethods, Method method) {
-        for (List<Method> methods : allMethods) {
-            for (Method other : methods) {
-                if (isOverrideForm(method, other)) {
-                    methods.remove(other);
-                    return;
-                }
-            }
-        }
-    }
-
-    static boolean isOverrideForm(Method method, Method other) {
-        if (method.getDeclaringClass() == other.getDeclaringClass()) {
-            return false;
-        }
-        if (other.getDeclaringClass().isAssignableFrom(method.getDeclaringClass()) == false) {
-            return false;
-        }
-        if (Objects.equals(method.getName(), other.getName()) == false) {
-            return false;
-        }
-        if (Arrays.equals(method.getParameterTypes(), other.getParameterTypes()) == false) {
-            return false;
-        }
-        if (Modifier.isPrivate(other.getModifiers())) {
-            return false;
-        }
-        if (Modifier.isProtected(other.getModifiers()) == false
-                && Modifier.isPublic(other.getModifiers()) == false
-                && Objects.equals(method.getDeclaringClass().getPackage(),
-                other.getDeclaringClass().getPackage()) == false) {
-            return false;
-        }
-        return true;
     }
 
     public void fireEvent(Object event) {

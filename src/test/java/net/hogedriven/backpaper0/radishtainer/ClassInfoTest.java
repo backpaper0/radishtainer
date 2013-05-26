@@ -15,7 +15,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 @RunWith(Enclosed.class)
-public class MethodInjectorTest {
+public class ClassInfoTest {
 
     @Data(superClass = Eee1.class,
             subClass = Eee2.class,
@@ -89,28 +89,28 @@ public class MethodInjectorTest {
         public void test_privateMethod() throws Exception {
             Method superMethod = superClass.getDeclaredMethod("privateMethod");
             Method subMethod = subClass.getDeclaredMethod("privateMethod");
-            assertThat(Container.isOverrideForm(subMethod, superMethod), is(privateMethodExpected));
+            assertThat(ClassInfo.isOverrideForm(subMethod, superMethod), is(privateMethodExpected));
         }
 
         @Test
         public void test_packagePrivateMethod() throws Exception {
             Method superMethod = superClass.getDeclaredMethod("packagePrivateMethod");
             Method subMethod = subClass.getDeclaredMethod("packagePrivateMethod");
-            assertThat(Container.isOverrideForm(subMethod, superMethod), is(packagePrivateMethodExpected));
+            assertThat(ClassInfo.isOverrideForm(subMethod, superMethod), is(packagePrivateMethodExpected));
         }
 
         @Test
         public void test_protectedMethod() throws Exception {
             Method superMethod = superClass.getDeclaredMethod("protectedMethod");
             Method subMethod = subClass.getDeclaredMethod("protectedMethod");
-            assertThat(Container.isOverrideForm(subMethod, superMethod), is(protectedMethodExpected));
+            assertThat(ClassInfo.isOverrideForm(subMethod, superMethod), is(protectedMethodExpected));
         }
 
         @Test
         public void test_publicMethod() throws Exception {
             Method superMethod = superClass.getDeclaredMethod("publicMethod");
             Method subMethod = subClass.getDeclaredMethod("publicMethod");
-            assertThat(Container.isOverrideForm(subMethod, superMethod), is(publicMethodExpected));
+            assertThat(ClassInfo.isOverrideForm(subMethod, superMethod), is(publicMethodExpected));
         }
     }
 }
