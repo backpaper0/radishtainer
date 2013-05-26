@@ -342,6 +342,13 @@ public class ContainerTest {
         c.addInstance(Aaa.class, null, Aaa.INSTANCE);
     }
 
+    @Test
+    public void test_error_addInstance() throws Exception {
+        Container c = newContainer();
+        expectedException.expect(IllegalArgumentException.class);
+        c.addInstance(Aaa.class, null, null);
+    }
+
     protected Container newContainer() {
         return new Container();
     }
