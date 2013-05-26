@@ -3,6 +3,7 @@ package net.hogedriven.backpaper0.radishtainer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import net.hogedriven.backpaper0.radishtainer.event.Observes;
 
 public class Container {
 
@@ -47,6 +49,10 @@ public class Container {
 
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
         Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
+        return (T) getInstance(descriptor);
+    }
+
+    private Object getInstance(Descriptor<?> descriptor) {
         Object instance = instances.get(descriptor);
         if (instance != null) {
             inject(instance);
@@ -56,7 +62,7 @@ public class Container {
             Instantiator instantiator = new Instantiator(this, impl);
             instance = scope.getInstance(instantiator, impl);
         }
-        return (T) instance;
+        return instance;
     }
 
     private Scope findScope(Class<?> impl) {
@@ -130,6 +136,37 @@ public class Container {
         }
         for (Injector injector : injectors) {
             injector.inject(this, target);
+        }
+    }
+
+    public void fireEvent(Object event) {
+        for (Map.Entry<Descriptor<?>, Class<?>> entry : descriptors.entrySet()) {
+            Class<?> impl = entry.getValue();
+            for (Method method : impl.getDeclaredMethods()) {
+                if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == event.getClass()) {
+                    boolean b = false;
+                    Annotation[] annotations = method.getParameterAnnotations()[0];
+                    for (Annotation annotation : annotations) {
+                        if (annotation.annotationType() == Observes.class) {
+                            b = true;
+                        }
+                    }
+                    if (b) {
+                        Descriptor<?> descriptor = entry.getKey();
+                        Object instance = getInstance(descriptor);
+                        if (method.isAccessible() == false) {
+                            method.setAccessible(true);
+                        }
+                        try {
+                            method.invoke(instance, event);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        } catch (InvocationTargetException e) {
+                            throw new RuntimeException(e.getCause());
+                        }
+                    }
+                }
+            }
         }
     }
 }
