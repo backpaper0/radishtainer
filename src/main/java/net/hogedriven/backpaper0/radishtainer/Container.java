@@ -4,14 +4,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Provider;
-import javax.inject.Qualifier;
 import javax.inject.Singleton;
 import net.hogedriven.backpaper0.radishtainer.event.Observes;
 

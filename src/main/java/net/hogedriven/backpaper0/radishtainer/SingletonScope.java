@@ -1,19 +1,36 @@
 package net.hogedriven.backpaper0.radishtainer;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 public class SingletonScope implements Scope {
 
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private ConcurrentMap<Class<?>, FutureTask<Object>> tasks = new ConcurrentHashMap<>();
 
     @Override
-    public Object getInstance(Instantiator instantiator, Class<?> impl) {
-        Object instance = instances.get(impl);
-        if (instance == null) {
-            instance = instantiator.newInstance();
-            instances.put(impl, instance);
+    public Object getInstance(final Instantiator instantiator, Class<?> impl) {
+        Callable<Object> callable = new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                return instantiator.newInstance();
+            }
+        };
+        FutureTask<Object> newTask = new FutureTask<>(callable);
+        FutureTask<Object> task = tasks.putIfAbsent(impl, newTask);
+        if (task == null) {
+            task = newTask;
+            task.run();
         }
-        return instance;
+        try {
+            return task.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
     }
 }

@@ -1,6 +1,11 @@
 package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.annotation.Annotation;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Provider;
 import net.hogedriven.backpaper0.radishtainer.test.Aaa;
 import net.hogedriven.backpaper0.radishtainer.test.Bbb;
@@ -24,6 +29,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Ppp;
 import net.hogedriven.backpaper0.radishtainer.test.Qqq1;
 import net.hogedriven.backpaper0.radishtainer.test.Qqq2;
 import net.hogedriven.backpaper0.radishtainer.test.Qqq3;
+import net.hogedriven.backpaper0.radishtainer.test.Rrr;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -287,6 +293,24 @@ public class ContainerTest {
 
         assertThat("same scope", instance1, sameInstance(instance2));
         assertThat("difference scope", instance1, not(sameInstance(instance3)));
+    }
+
+    @Test
+    public void test_multi_thread() throws Exception {
+        final Container c = newContainer();
+        c.add(Rrr.class, null, null);
+        ExecutorService exec = Executors.newFixedThreadPool(2);
+        Callable<Rrr> task = new Callable<Rrr>() {
+            @Override
+            public Rrr call() throws Exception {
+                return c.getInstance(Rrr.class, null);
+            }
+        };
+        Future<Rrr> future1 = exec.submit(task);
+        Future<Rrr> future2 = exec.submit(task);
+        TimeUnit.MILLISECONDS.sleep(100L);
+        Rrr.start.countDown();
+        assertThat(future1.get(), sameInstance(future2.get()));
     }
 
     protected Container newContainer() {
