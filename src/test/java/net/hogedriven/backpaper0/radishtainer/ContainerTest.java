@@ -20,6 +20,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Lll;
 import net.hogedriven.backpaper0.radishtainer.test.Mmm;
 import net.hogedriven.backpaper0.radishtainer.test.Nnn;
 import net.hogedriven.backpaper0.radishtainer.test.Ooo2;
+import net.hogedriven.backpaper0.radishtainer.test.Ppp;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -244,6 +245,28 @@ public class ContainerTest {
         assertThat("sub no annotation", instance.noAtObserversSub, is(false));
         assertThat("super no overrided", instance.noOverridedSuper, is(true));
         assertThat("sub no overrided", instance.noOverridedSub, is(true));
+    }
+
+    @Test
+    public void test_event_inject() throws Exception {
+        Container c = newContainer();
+        c.add(Ppp.class, null, null);
+
+        Aaa injected = new Aaa();
+        c.addInstance(Aaa.class, null, injected);
+
+        Annotation iii1 = ContainerTest.class.getDeclaredField("withIii1").getAnnotation(Iii1.class);
+        Aaa withQualifier = new Aaa();
+        c.addInstance(Aaa.class, iii1, withQualifier);
+
+        Ppp instance = c.getInstance(Ppp.class, null);
+
+        Aaa event = new Aaa();
+        c.fireEvent(event);
+
+        assertThat("event", instance.event, sameInstance(event));
+        assertThat("injected", instance.injected, sameInstance(injected));
+        assertThat("with qualifier", instance.withQualifier, sameInstance(withQualifier));
     }
 
     protected Container newContainer() {

@@ -5,11 +5,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Provider;
+import javax.inject.Qualifier;
 import javax.inject.Singleton;
 import net.hogedriven.backpaper0.radishtainer.event.Observes;
 
@@ -18,6 +21,8 @@ public class Container {
     private Map<Descriptor<?>, Class<?>> descriptors = new HashMap<>();
 
     private Map<Descriptor<?>, Object> instances = new HashMap<>();
+
+    private Map<Class<?>, ClassInfo> classInfoCache = new HashMap<>();
 
     private Scope defaultScope = new Scope() {
         @Override
@@ -105,7 +110,7 @@ public class Container {
     }
 
     public void inject(Object target) {
-        ClassInfo injectable = new ClassInfo(target.getClass());
+        ClassInfo injectable = getClassInfo(target.getClass());
         for (int i = 0; i < injectable.allFields.size(); i++) {
             for (Field field : injectable.allFields.get(i)) {
                 Injector injector = new FieldInjector(field);
@@ -125,13 +130,15 @@ public class Container {
     public void fireEvent(Object event) {
         for (Map.Entry<Descriptor<?>, Class<?>> entry : descriptors.entrySet()) {
             Class<?> impl = entry.getValue();
-            ClassInfo handleable = new ClassInfo(impl);
+            ClassInfo handleable = getClassInfo(impl);
             for (List<Method> methods : handleable.allMethods) {
                 for (Method method : methods) {
-                    if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == event.getClass()) {
+                    Class<?>[] types = method.getParameterTypes();
+                    Type[] genericTypes = method.getGenericParameterTypes();
+                    Annotation[][] annotations = method.getParameterAnnotations();
+                    if (types.length > 0 && method.getParameterTypes()[0] == event.getClass()) {
                         boolean b = false;
-                        Annotation[] annotations = method.getParameterAnnotations()[0];
-                        for (Annotation annotation : annotations) {
+                        for (Annotation annotation : annotations[0]) {
                             if (annotation.annotationType() == Observes.class) {
                                 b = true;
                             }
@@ -139,11 +146,13 @@ public class Container {
                         if (b) {
                             Descriptor<?> descriptor = entry.getKey();
                             Object instance = getInstance(descriptor);
+                            Object[] dependencies = getDependencies(this, types, genericTypes, annotations, 1);
+                            dependencies[0] = event;
                             if (method.isAccessible() == false) {
                                 method.setAccessible(true);
                             }
                             try {
-                                method.invoke(instance, event);
+                                method.invoke(instance, dependencies);
                             } catch (IllegalAccessException e) {
                                 throw new RuntimeException(e);
                             } catch (InvocationTargetException e) {
@@ -154,5 +163,40 @@ public class Container {
                 }
             }
         }
+    }
+
+    protected Object getDependency(Container container, Class<?> type, Type genericType, Annotation[] annotations) {
+        Annotation qualifier = null;
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
+                qualifier = annotation;
+            }
+        }
+        Object dependency;
+        if (type == Provider.class) {
+            ParameterizedType pt = (ParameterizedType) genericType;
+            Class<?> type2 = (Class<?>) pt.getActualTypeArguments()[0];
+            dependency = container.getProvider(type2, qualifier);
+        } else {
+            dependency = container.getInstance(type, qualifier);
+        }
+        return dependency;
+    }
+
+    protected Object[] getDependencies(Container container, Class<?>[] types, Type[] genericTypes, Annotation[][] annotations, int startIndex) {
+        Object[] dependencies = new Object[types.length];
+        for (int i = startIndex; i < types.length; i++) {
+            dependencies[i] = getDependency(container, types[i], genericTypes[i], annotations[i]);
+        }
+        return dependencies;
+    }
+
+    private ClassInfo getClassInfo(Class<?> c) {
+        ClassInfo classInfo = classInfoCache.get(c);
+        if (classInfo == null) {
+            classInfo = new ClassInfo(c);
+            classInfoCache.put(c, classInfo);
+        }
+        return classInfo;
     }
 }
