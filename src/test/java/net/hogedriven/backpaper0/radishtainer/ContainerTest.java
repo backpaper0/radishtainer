@@ -1,6 +1,7 @@
 package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.annotation.Annotation;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -370,6 +371,13 @@ public class ContainerTest {
         Container c = newContainer();
         expectedException.expect(IllegalArgumentException.class);
         c.add(Sss.class, null, null);
+    }
+
+    @Test
+    public void test_error_getInstance_not_exists() throws Exception {
+        Container c = newContainer();
+        expectedException.expect(NoSuchElementException.class);
+        c.getInstance(Iii1.class, null);
     }
 
     protected Container newContainer() {

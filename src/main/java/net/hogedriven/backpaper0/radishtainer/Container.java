@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import net.hogedriven.backpaper0.radishtainer.event.Observes;
@@ -94,6 +95,9 @@ public class Container {
             inject(instance);
         } else {
             Class<?> impl = descriptors.get(descriptor);
+            if (impl == null) {
+                throw new NoSuchElementException();
+            }
             Scope scope = findScope(impl);
             Instantiator instantiator = new Instantiator(this, impl);
             instance = scope.getInstance(instantiator, impl);
