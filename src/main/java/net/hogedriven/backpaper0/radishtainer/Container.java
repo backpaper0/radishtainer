@@ -56,7 +56,14 @@ public class Container {
         if (descriptors.containsKey(descriptor)) {
             throw new RuntimeException();
         }
-        descriptors.put(descriptor, impl != null ? impl : type);
+        impl = impl != null ? impl : type;
+        if (impl.isInterface()) {
+            throw new IllegalArgumentException();
+        }
+        if (impl.isEnum()) {
+            throw new IllegalArgumentException();
+        }
+        descriptors.put(descriptor, impl);
     }
 
     public <T> void addInstance(Class<T> type, Annotation qualifier, T instance) {

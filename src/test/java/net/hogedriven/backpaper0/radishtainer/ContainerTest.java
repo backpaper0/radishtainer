@@ -30,6 +30,7 @@ import net.hogedriven.backpaper0.radishtainer.test.Qqq1;
 import net.hogedriven.backpaper0.radishtainer.test.Qqq2;
 import net.hogedriven.backpaper0.radishtainer.test.Qqq3;
 import net.hogedriven.backpaper0.radishtainer.test.Rrr;
+import net.hogedriven.backpaper0.radishtainer.test.Sss;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -343,10 +344,32 @@ public class ContainerTest {
     }
 
     @Test
-    public void test_error_addInstance() throws Exception {
+    public void test_error_getInstance() throws Exception {
+        Container c = newContainer();
+        c.addInstance(Aaa.class, null, Aaa.INSTANCE);
+        expectedException.expect(RuntimeException.class);
+        c.addInstance(Aaa.class, null, Aaa.INSTANCE);
+    }
+
+    @Test
+    public void test_error_getInstance_interface() throws Exception {
         Container c = newContainer();
         expectedException.expect(IllegalArgumentException.class);
-        c.addInstance(Aaa.class, null, null);
+        c.add(Hhh1.class, null, null);
+    }
+
+    @Test
+    public void test_error_getInstance_annotation() throws Exception {
+        Container c = newContainer();
+        expectedException.expect(IllegalArgumentException.class);
+        c.add(Iii1.class, null, null);
+    }
+
+    @Test
+    public void test_error_getInstance_enum() throws Exception {
+        Container c = newContainer();
+        expectedException.expect(IllegalArgumentException.class);
+        c.add(Sss.class, null, null);
     }
 
     protected Container newContainer() {
