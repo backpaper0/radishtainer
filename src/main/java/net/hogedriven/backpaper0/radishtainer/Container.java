@@ -120,6 +120,10 @@ public class Container {
         if (type == null) {
             throw new IllegalArgumentException("type");
         }
+        Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
+        if (instances.containsKey(descriptor) == false && descriptors.containsKey(descriptor) == false) {
+            throw new NoSuchElementException();
+        }
         return new Provider<T>() {
             @Override
             public T get() {

@@ -380,6 +380,13 @@ public class ContainerTest {
         c.getInstance(Iii1.class, null);
     }
 
+    @Test
+    public void test_error_getProvider_not_exists() throws Exception {
+        Container c = newContainer();
+        expectedException.expect(NoSuchElementException.class);
+        c.getProvider(Iii1.class, null);
+    }
+
     protected Container newContainer() {
         return new Container();
     }
