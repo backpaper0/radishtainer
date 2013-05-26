@@ -86,7 +86,14 @@ public class Container {
             throw new IllegalArgumentException("type");
         }
         Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
+        check(descriptor);
         return (T) getInstance(descriptor);
+    }
+
+    private void check(Descriptor<?> descriptor) {
+        if (instances.containsKey(descriptor) == false && descriptors.containsKey(descriptor) == false) {
+            throw new NoSuchElementException();
+        }
     }
 
     private Object getInstance(Descriptor<?> descriptor) {
@@ -95,9 +102,6 @@ public class Container {
             inject(instance);
         } else {
             Class<?> impl = descriptors.get(descriptor);
-            if (impl == null) {
-                throw new NoSuchElementException();
-            }
             Scope scope = findScope(impl);
             Instantiator instantiator = new Instantiator(this, impl);
             instance = scope.getInstance(instantiator, impl);
@@ -116,18 +120,16 @@ public class Container {
         return defaultScope;
     }
 
-    public <T> Provider<T> getProvider(final Class<T> type, final Annotation qualifier) {
+    public <T> Provider<T> getProvider(Class<T> type, Annotation qualifier) {
         if (type == null) {
             throw new IllegalArgumentException("type");
         }
-        Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
-        if (instances.containsKey(descriptor) == false && descriptors.containsKey(descriptor) == false) {
-            throw new NoSuchElementException();
-        }
+        final Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
+        check(descriptor);
         return new Provider<T>() {
             @Override
             public T get() {
-                return getInstance(type, qualifier);
+                return (T) getInstance(descriptor);
             }
         };
     }
