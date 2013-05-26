@@ -34,6 +34,12 @@ public class Container {
     }
 
     public void addScope(Class<? extends Annotation> annotationType, Scope scope) {
+        if (annotationType == null) {
+            throw new IllegalArgumentException("annotationType");
+        }
+        if (scope == null) {
+            throw new IllegalArgumentException("scope");
+        }
         if (scopes.containsKey(annotationType)) {
             throw new RuntimeException();
         }
@@ -43,6 +49,9 @@ public class Container {
     }
 
     public <T> void add(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
+        if (type == null) {
+            throw new IllegalArgumentException("type");
+        }
         Descriptor<T> descriptor = new Descriptor<>(type, qualifier);
         if (descriptors.containsKey(descriptor)) {
             throw new RuntimeException();
@@ -51,6 +60,9 @@ public class Container {
     }
 
     public <T> void addInstance(Class<T> type, Annotation qualifier, T instance) {
+        if (type == null) {
+            throw new IllegalArgumentException("type");
+        }
         if (instance == null) {
             throw new IllegalArgumentException("instance");
         }
@@ -62,6 +74,9 @@ public class Container {
     }
 
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
+        if (type == null) {
+            throw new IllegalArgumentException("type");
+        }
         Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
         return (T) getInstance(descriptor);
     }
@@ -91,6 +106,9 @@ public class Container {
     }
 
     public <T> Provider<T> getProvider(final Class<T> type, final Annotation qualifier) {
+        if (type == null) {
+            throw new IllegalArgumentException("type");
+        }
         return new Provider<T>() {
             @Override
             public T get() {
