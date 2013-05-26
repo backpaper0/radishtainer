@@ -1,7 +1,6 @@
 package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -115,31 +114,40 @@ public class Container {
             classes.add(clazz);
         }
         Collections.reverse(classes);
-        List<AccessibleObject> accessibleObjects = new ArrayList<>();
+        List<List<Field>> allFields = new ArrayList<>();
+        List<List<Method>> allMethods = new ArrayList<>();
         for (Class<?> clazz : classes) {
-            accessibleObjects.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            allFields.add(Arrays.asList(clazz.getDeclaredFields()));
+            List<Method> methods = new ArrayList<>();
             for (Method method : clazz.getDeclaredMethods()) {
-                for (AccessibleObject other : accessibleObjects) {
-                    if (other instanceof Method) {
-                        if (isOverrideForm(method, (Method) other)) {
-                            accessibleObjects.remove(other);
-                            break;
-                        }
-                    }
+                removeOverrided(allMethods, method);
+                methods.add(method);
+            }
+            allMethods.add(methods);
+        }
+        for (int i = 0; i < allFields.size(); i++) {
+            for (Field field : allFields.get(i)) {
+                Injector injector = new FieldInjector(field);
+                if (injector.isInjectable()) {
+                    injector.inject(this, target);
                 }
-                accessibleObjects.add(method);
+            }
+            for (Method method : allMethods.get(i)) {
+                Injector injector = new MethodInjector(method);
+                if (injector.isInjectable()) {
+                    injector.inject(this, target);
+                }
             }
         }
+    }
 
-        for (AccessibleObject accessibleObject : accessibleObjects) {
-            Injector injector;
-            if (accessibleObject instanceof Field) {
-                injector = new FieldInjector((Field) accessibleObject);
-            } else {
-                injector = new MethodInjector((Method) accessibleObject);
-            }
-            if (injector.isInjectable()) {
-                injector.inject(this, target);
+    private void removeOverrided(List<List<Method>> allMethods, Method method) {
+        for (List<Method> methods : allMethods) {
+            for (Method other : methods) {
+                if (isOverrideForm(method, other)) {
+                    methods.remove(other);
+                    return;
+                }
             }
         }
     }
