@@ -106,13 +106,15 @@ public class Container {
             }
         }
         if (injectors.isEmpty()) {
-            try {
-                Constructor<?> constructor = impl.getDeclaredConstructor();
-                Injector injector = new ConstructorInjector(constructor);
-                injectors.add(injector);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
+            for (Constructor<?> constructor : impl.getDeclaredConstructors()) {
+                if (constructor.getParameterTypes().length == 0) {
+                    Injector injector = new ConstructorInjector(constructor);
+                    injectors.add(injector);
+                }
             }
+        }
+        if (injectors.isEmpty()) {
+            throw new IllegalArgumentException();
         }
         if (injectors.size() > 1) {
             throw new IllegalArgumentException();
