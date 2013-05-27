@@ -3,6 +3,8 @@ package net.hogedriven.backpaper0.radishtainer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Provider;
 import javax.inject.Qualifier;
 
@@ -13,11 +15,18 @@ public abstract class Injector {
     public abstract Object inject(Container container, Object target);
 
     protected Object getDependency(Container container, Class<?> type, Type genericType, Annotation[] annotations) {
-        Annotation qualifier = null;
+        List<Annotation> qualifiers = new ArrayList<>();
         for (Annotation annotation : annotations) {
             if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
-                qualifier = annotation;
+                qualifiers.add(annotation);
             }
+        }
+        Annotation qualifier = null;
+        if (qualifiers.isEmpty() == false) {
+            if (qualifiers.size() > 1) {
+                throw new IllegalArgumentException();
+            }
+            qualifier = qualifiers.get(0);
         }
         Object dependency;
         if (type == Provider.class) {
