@@ -17,7 +17,7 @@ public class MethodInjector extends Injector {
 
     @Override
     public boolean isInjectable() {
-        return method.isAnnotationPresent(Inject.class);
+        return method.isAnnotationPresent(Inject.class) && Modifier.isAbstract(method.getModifiers()) == false;
     }
 
     @Override

@@ -16,7 +16,7 @@ public class FieldInjector extends Injector {
 
     @Override
     public boolean isInjectable() {
-        return field.isAnnotationPresent(Inject.class);
+        return field.isAnnotationPresent(Inject.class) && Modifier.isFinal(field.getModifiers()) == false;
     }
 
     @Override
