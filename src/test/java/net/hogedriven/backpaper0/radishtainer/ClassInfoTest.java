@@ -89,28 +89,28 @@ public class ClassInfoTest {
         public void test_privateMethod() throws Exception {
             Method superMethod = superClass.getDeclaredMethod("privateMethod");
             Method subMethod = subClass.getDeclaredMethod("privateMethod");
-            assertThat(ClassInfo.isOverrideForm(subMethod, superMethod), is(privateMethodExpected));
+            assertThat(ClassInfo.isOverridden(subMethod, superMethod), is(privateMethodExpected));
         }
 
         @Test
         public void test_packagePrivateMethod() throws Exception {
             Method superMethod = superClass.getDeclaredMethod("packagePrivateMethod");
             Method subMethod = subClass.getDeclaredMethod("packagePrivateMethod");
-            assertThat(ClassInfo.isOverrideForm(subMethod, superMethod), is(packagePrivateMethodExpected));
+            assertThat(ClassInfo.isOverridden(subMethod, superMethod), is(packagePrivateMethodExpected));
         }
 
         @Test
         public void test_protectedMethod() throws Exception {
             Method superMethod = superClass.getDeclaredMethod("protectedMethod");
             Method subMethod = subClass.getDeclaredMethod("protectedMethod");
-            assertThat(ClassInfo.isOverrideForm(subMethod, superMethod), is(protectedMethodExpected));
+            assertThat(ClassInfo.isOverridden(subMethod, superMethod), is(protectedMethodExpected));
         }
 
         @Test
         public void test_publicMethod() throws Exception {
             Method superMethod = superClass.getDeclaredMethod("publicMethod");
             Method subMethod = subClass.getDeclaredMethod("publicMethod");
-            assertThat(ClassInfo.isOverrideForm(subMethod, superMethod), is(publicMethodExpected));
+            assertThat(ClassInfo.isOverridden(subMethod, superMethod), is(publicMethodExpected));
         }
     }
 }

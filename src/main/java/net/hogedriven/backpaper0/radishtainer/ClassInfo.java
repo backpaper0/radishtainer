@@ -35,7 +35,7 @@ public class ClassInfo {
     private void removeOverrided(List<List<Method>> allMethods, Method method) {
         for (List<Method> methods : allMethods) {
             for (Method other : methods) {
-                if (isOverrideForm(method, other)) {
+                if (isOverridden(method, other)) {
                     methods.remove(other);
                     return;
                 }
@@ -43,7 +43,7 @@ public class ClassInfo {
         }
     }
 
-    static boolean isOverrideForm(Method method, Method other) {
+    static boolean isOverridden(Method method, Method other) {
         if (method.getDeclaringClass() == other.getDeclaringClass()) {
             return false;
         }
