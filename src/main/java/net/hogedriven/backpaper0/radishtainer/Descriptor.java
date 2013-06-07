@@ -3,13 +3,13 @@ package net.hogedriven.backpaper0.radishtainer;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 
-public class Descriptor<T> {
+public class Descriptor {
 
-    private final Class<T> type;
+    private final Class<?> type;
 
     private final Annotation qualifier;
 
-    public Descriptor(Class<T> type, Annotation qualifier) {
+    public Descriptor(Class<?> type, Annotation qualifier) {
         this.type = type;
         this.qualifier = qualifier;
     }
@@ -19,7 +19,7 @@ public class Descriptor<T> {
         if ((obj instanceof Descriptor) == false) {
             return false;
         }
-        Descriptor<?> other = (Descriptor<?>) obj;
+        Descriptor other = (Descriptor) obj;
         return Objects.equals(type, other.type)
                 && Objects.equals(qualifier, other.qualifier);
     }

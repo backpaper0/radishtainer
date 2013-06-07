@@ -11,11 +11,13 @@ public class SingletonScope implements Scope {
     private ConcurrentMap<Class<?>, FutureTask<Object>> tasks = new ConcurrentHashMap<>();
 
     @Override
-    public Object getInstance(final Instantiator instantiator, Class<?> impl) {
+    public Object getInstance(final Container container, final Class<?> impl) {
         Callable<Object> callable = new Callable<Object>() {
             @Override
             public Object call() throws Exception {
-                return instantiator.newInstance();
+                Object instance = container.newInstance(impl);
+                container.inject(instance);
+                return instance;
             }
         };
         FutureTask<Object> newTask = new FutureTask<>(callable);

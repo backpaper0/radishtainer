@@ -15,16 +15,14 @@ import net.hogedriven.backpaper0.radishtainer.event.Observes;
 
 public class Container {
 
-    private Map<Descriptor<?>, Class<?>> descriptors = new HashMap<>();
-
-    private Map<Descriptor<?>, Object> instances = new HashMap<>();
-
-    private Map<Class<?>, ClassInfo> classInfoCache = new HashMap<>();
+    private Map<Descriptor, Binding> bindings = new HashMap<>();
 
     private Scope defaultScope = new Scope() {
         @Override
-        public Object getInstance(Instantiator instantiator, Class<?> impl) {
-            return instantiator.newInstance();
+        public Object getInstance(Container container, Class<?> impl) {
+            Object instance = container.newInstance(impl);
+            container.inject(instance);
+            return instance;
         }
     };
 
@@ -53,13 +51,14 @@ public class Container {
         if (type == null) {
             throw new IllegalArgumentException("type");
         }
-        Descriptor<T> descriptor = new Descriptor<>(type, qualifier);
-        if (descriptors.containsKey(descriptor)) {
+        Descriptor descriptor = new Descriptor(type, qualifier);
+        if (bindings.containsKey(descriptor)) {
             throw new RuntimeException();
         }
         impl = impl != null ? impl : type;
         check(impl);
-        descriptors.put(descriptor, impl);
+        Scope scope = findScope(impl);
+        bindings.put(descriptor, Binding.newClassBinding(impl, scope));
     }
 
     public <T> void addInstance(Class<T> type, Annotation qualifier, T instance) {
@@ -69,24 +68,24 @@ public class Container {
         if (instance == null) {
             throw new IllegalArgumentException("instance");
         }
-        Descriptor<T> descriptor = new Descriptor<>(type, qualifier);
-        if (instances.containsKey(descriptor)) {
+        Descriptor descriptor = new Descriptor(type, qualifier);
+        if (bindings.containsKey(descriptor)) {
             throw new RuntimeException();
         }
-        instances.put(descriptor, instance);
+        bindings.put(descriptor, Binding.newInstanceBinding(instance));
     }
 
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
         if (type == null) {
             throw new IllegalArgumentException("type");
         }
-        Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
+        Descriptor descriptor = new Descriptor(type, qualifier);
         check(descriptor);
         return (T) getInstance(descriptor);
     }
 
-    private void check(Descriptor<?> descriptor) {
-        if (instances.containsKey(descriptor) == false && descriptors.containsKey(descriptor) == false) {
+    private void check(Descriptor descriptor) {
+        if (bindings.containsKey(descriptor) == false && bindings.containsKey(descriptor) == false) {
             throw new NoSuchElementException();
         }
     }
@@ -121,16 +120,9 @@ public class Container {
         }
     }
 
-    private Object getInstance(Descriptor<?> descriptor) {
-        Object instance = instances.get(descriptor);
-        if (instance != null) {
-            inject(instance);
-        } else {
-            Class<?> impl = descriptors.get(descriptor);
-            Scope scope = findScope(impl);
-            Instantiator instantiator = new Instantiator(this, impl);
-            instance = scope.getInstance(instantiator, impl);
-        }
+    private Object getInstance(Descriptor descriptor) {
+        Binding binding = bindings.get(descriptor);
+        Object instance = binding.getInstance(this);
         return instance;
     }
 
@@ -149,7 +141,7 @@ public class Container {
         if (type == null) {
             throw new IllegalArgumentException("type");
         }
-        final Descriptor<?> descriptor = new Descriptor<>(type, qualifier);
+        final Descriptor descriptor = new Descriptor(type, qualifier);
         check(descriptor);
         return new Provider<T>() {
             @Override
@@ -159,7 +151,7 @@ public class Container {
         };
     }
 
-    Object newInstance(Class<?> clazz) {
+    public Object newInstance(Class<?> clazz) {
         List<Injector> injectors = new ArrayList<>();
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
             Injector injector = new ConstructorInjector(constructor);
@@ -180,7 +172,7 @@ public class Container {
     }
 
     public void inject(Object target) {
-        ClassInfo injectable = getClassInfo(target.getClass());
+        ClassInfo injectable = new ClassInfo(target.getClass());
         for (int i = 0; i < injectable.allFields.size(); i++) {
             for (Field field : injectable.allFields.get(i)) {
                 Injector injector = new FieldInjector(field);
@@ -198,20 +190,15 @@ public class Container {
     }
 
     public void fireEvent(Object event) {
-        for (Map.Entry<Descriptor<?>, Class<?>> entry : descriptors.entrySet()) {
-            Descriptor<?> descriptor = entry.getKey();
-            Class<?> impl = entry.getValue();
-            fireEvent(impl, event, descriptor);
-        }
-        for (Map.Entry<Descriptor<?>, Object> entry : instances.entrySet()) {
-            Descriptor<?> descriptor = entry.getKey();
-            Class<?> impl = entry.getValue().getClass();
-            fireEvent(impl, event, descriptor);
+        for (Map.Entry<Descriptor, Binding> entry : bindings.entrySet()) {
+            Descriptor descriptor = entry.getKey();
+            Binding binding = entry.getValue();
+            fireEvent(binding, event, descriptor);
         }
     }
 
-    private void fireEvent(Class<?> impl, Object event, Descriptor<?> descriptor) {
-        ClassInfo handleable = getClassInfo(impl);
+    private void fireEvent(Binding binding, Object event, Descriptor descriptor) {
+        ClassInfo handleable = binding.getClassInfo();
         for (List<Method> methods : handleable.allMethods) {
             for (Method method : methods) {
                 Class<?>[] types = method.getParameterTypes();
@@ -230,14 +217,5 @@ public class Container {
                 }
             }
         }
-    }
-
-    private ClassInfo getClassInfo(Class<?> c) {
-        ClassInfo classInfo = classInfoCache.get(c);
-        if (classInfo == null) {
-            classInfo = new ClassInfo(c);
-            classInfoCache.put(c, classInfo);
-        }
-        return classInfo;
     }
 }
