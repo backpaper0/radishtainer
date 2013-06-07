@@ -173,14 +173,14 @@ public class Container {
 
     public void inject(Object target) {
         ClassInfo injectable = new ClassInfo(target.getClass());
-        for (int i = 0; i < injectable.allFields.size(); i++) {
-            for (Field field : injectable.allFields.get(i)) {
+        for (int i = 0; i < injectable.getInjectableFields().size(); i++) {
+            for (Field field : injectable.getInjectableFields().get(i)) {
                 Injector injector = new FieldInjector(field);
                 if (injector.isInjectable()) {
                     injector.inject(this, target);
                 }
             }
-            for (Method method : injectable.allMethods.get(i)) {
+            for (Method method : injectable.getInjectableMethods().get(i)) {
                 Injector injector = new MethodInjector(method);
                 if (injector.isInjectable()) {
                     injector.inject(this, target);
@@ -199,22 +199,11 @@ public class Container {
 
     private void fireEvent(Binding binding, Object event, Descriptor descriptor) {
         ClassInfo handleable = binding.getClassInfo();
-        for (List<Method> methods : handleable.allMethods) {
+        for (List<Method> methods : handleable.getObservableMethods(event.getClass())) {
             for (Method method : methods) {
-                Class<?>[] types = method.getParameterTypes();
-                if (types.length > 0 && method.getParameterTypes()[0] == event.getClass()) {
-                    boolean b = false;
-                    for (Annotation annotation : method.getParameterAnnotations()[0]) {
-                        if (annotation.annotationType() == Observes.class) {
-                            b = true;
-                        }
-                    }
-                    if (b) {
-                        Object instance = getInstance(descriptor);
-                        Injector injector = new EventInjector(method, event);
-                        injector.inject(this, instance);
-                    }
-                }
+                Object instance = getInstance(descriptor);
+                Injector injector = new EventInjector(method, event);
+                injector.inject(this, instance);
             }
         }
     }
