@@ -21,11 +21,6 @@ public class InjectorTest {
     public void test_no_more_than_one_qualifier() throws Exception {
         Injector injector = new Injector() {
             @Override
-            public boolean isInjectable() {
-                return false;
-            }
-
-            @Override
             public Object inject(Container container, Object target) {
                 return null;
             }

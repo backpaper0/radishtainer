@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import javax.inject.Inject;
 
 public class EventInjector extends Injector {
 
@@ -16,11 +15,6 @@ public class EventInjector extends Injector {
     public EventInjector(Method method, Object event) {
         this.method = method;
         this.event = event;
-    }
-
-    @Override
-    public boolean isInjectable() {
-        return method.isAnnotationPresent(Inject.class);
     }
 
     @Override

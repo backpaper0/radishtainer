@@ -5,7 +5,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import javax.inject.Inject;
 
 public class ConstructorInjector extends Injector {
 
@@ -13,11 +12,6 @@ public class ConstructorInjector extends Injector {
 
     public ConstructorInjector(Constructor<?> constructor) {
         this.constructor = constructor;
-    }
-
-    @Override
-    public boolean isInjectable() {
-        return constructor.isAnnotationPresent(Inject.class);
     }
 
     @Override

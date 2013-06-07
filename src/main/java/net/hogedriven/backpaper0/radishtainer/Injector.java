@@ -10,8 +10,6 @@ import javax.inject.Qualifier;
 
 public abstract class Injector {
 
-    public abstract boolean isInjectable();
-
     public abstract Object inject(Container container, Object target);
 
     protected Object getDependency(Container container, Class<?> type, Type genericType, Annotation[] annotations) {

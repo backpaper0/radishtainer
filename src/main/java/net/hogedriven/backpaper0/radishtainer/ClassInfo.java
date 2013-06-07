@@ -1,6 +1,7 @@
 package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -14,11 +15,14 @@ import net.hogedriven.backpaper0.radishtainer.event.Observes;
 
 public class ClassInfo {
 
+    private List<Constructor<?>> constructors;
+
     private List<List<Field>> allFields = new ArrayList<>();
 
     private List<List<Method>> allMethods = new ArrayList<>();
 
     public ClassInfo(Class<?> clazz) {
+        constructors = Arrays.asList(clazz.getDeclaredConstructors());
         List<Class<?>> classes = new ArrayList<>();
         for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
             classes.add(c);
@@ -35,12 +39,31 @@ public class ClassInfo {
         }
     }
 
+    public List<Constructor<?>> getInjectableConstructors() {
+        List<Constructor<?>> filtered = new ArrayList<>();
+        for (Constructor<?> constructor : constructors) {
+            if (isInjectable(constructor)) {
+                filtered.add(constructor);
+            }
+        }
+        return filtered;
+    }
+
+    public Constructor<?> getDefaultConstructor() throws NoSuchMethodException {
+        for (Constructor<?> constructor : constructors) {
+            if (constructor.getParameterTypes().length == 0) {
+                return constructor;
+            }
+        }
+        throw new NoSuchMethodException();
+    }
+
     public List<List<Field>> getInjectableFields() {
         List<List<Field>> filtered = new ArrayList<>();
         for (List<Field> fields : allFields) {
             List<Field> list = new ArrayList<>();
             for (Field field : fields) {
-                if (field.isAnnotationPresent(Inject.class) && Modifier.isFinal(field.getModifiers()) == false) {
+                if (isInjectable(field)) {
                     list.add(field);
                 }
             }
@@ -54,7 +77,7 @@ public class ClassInfo {
         for (List<Method> methods : allMethods) {
             List<Method> list = new ArrayList<>();
             for (Method method : methods) {
-                if (method.isAnnotationPresent(Inject.class) && Modifier.isAbstract(method.getModifiers()) == false) {
+                if (isInjectable(method)) {
                     list.add(method);
                 }
             }
@@ -123,5 +146,17 @@ public class ClassInfo {
             return false;
         }
         return true;
+    }
+
+    static boolean isInjectable(Field field) {
+        return field.isAnnotationPresent(Inject.class) && Modifier.isFinal(field.getModifiers()) == false;
+    }
+
+    static boolean isInjectable(Method method) {
+        return method.isAnnotationPresent(Inject.class) && Modifier.isAbstract(method.getModifiers()) == false;
+    }
+
+    static boolean isInjectable(Constructor<?> constructor) {
+        return constructor.isAnnotationPresent(Inject.class);
     }
 }

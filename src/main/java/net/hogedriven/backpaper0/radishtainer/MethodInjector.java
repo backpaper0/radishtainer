@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import javax.inject.Inject;
 
 public class MethodInjector extends Injector {
 
@@ -13,11 +12,6 @@ public class MethodInjector extends Injector {
 
     public MethodInjector(Method method) {
         this.method = method;
-    }
-
-    @Override
-    public boolean isInjectable() {
-        return method.isAnnotationPresent(Inject.class) && Modifier.isAbstract(method.getModifiers()) == false;
     }
 
     @Override

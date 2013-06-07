@@ -2,9 +2,11 @@ package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import net.hogedriven.backpaper0.radishtainer.test.Eee1;
 import net.hogedriven.backpaper0.radishtainer.test.Eee2;
+import net.hogedriven.backpaper0.radishtainer.test.Vvv;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import org.junit.Test;
 import static org.hamcrest.CoreMatchers.*;
@@ -16,6 +18,45 @@ import org.junit.runner.RunWith;
 
 @RunWith(Enclosed.class)
 public class ClassInfoTest {
+
+    public static class isInjectable_Test {
+
+        @Test
+        public void test_injectableField() throws Exception {
+            Field field = Vvv.class.getDeclaredField("injectableField");
+            assertThat(ClassInfo.isInjectable(field), is(true));
+        }
+
+        @Test
+        public void test_noAtInjectField() throws Exception {
+            Field field = Vvv.class.getDeclaredField("noAtInjectField");
+            assertThat(ClassInfo.isInjectable(field), is(false));
+        }
+
+        @Test
+        public void test_finalField() throws Exception {
+            Field field = Vvv.class.getDeclaredField("finalField");
+            assertThat(ClassInfo.isInjectable(field), is(false));
+        }
+
+        @Test
+        public void test_injectableMethod() throws Exception {
+            Method method = Vvv.class.getDeclaredMethod("injectableMethod");
+            assertThat(ClassInfo.isInjectable(method), is(true));
+        }
+
+        @Test
+        public void test_noAtInjectMethod() throws Exception {
+            Method method = Vvv.class.getDeclaredMethod("noAtInjectMethod");
+            assertThat(ClassInfo.isInjectable(method), is(false));
+        }
+
+        @Test
+        public void test_abstractMethod() throws Exception {
+            Method method = Vvv.class.getDeclaredMethod("abstractMethod");
+            assertThat(ClassInfo.isInjectable(method), is(false));
+        }
+    }
 
     @Data(superClass = Eee1.class,
             subClass = Eee2.class,

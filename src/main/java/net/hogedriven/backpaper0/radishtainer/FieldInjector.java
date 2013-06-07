@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import javax.inject.Inject;
 
 public class FieldInjector extends Injector {
 
@@ -12,11 +11,6 @@ public class FieldInjector extends Injector {
 
     public FieldInjector(Field field) {
         this.field = field;
-    }
-
-    @Override
-    public boolean isInjectable() {
-        return field.isAnnotationPresent(Inject.class) && Modifier.isFinal(field.getModifiers()) == false;
     }
 
     @Override

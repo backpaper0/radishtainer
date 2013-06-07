@@ -4,14 +4,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import net.hogedriven.backpaper0.radishtainer.event.Observes;
 
 public class Container {
 
@@ -97,25 +95,20 @@ public class Container {
         if (impl.isEnum()) {
             throw new IllegalArgumentException();
         }
-        List<Injector> injectors = new ArrayList<>();
-        for (Constructor<?> constructor : impl.getDeclaredConstructors()) {
-            Injector injector = new ConstructorInjector(constructor);
-            if (injector.isInjectable()) {
-                injectors.add(injector);
+        ClassInfo classInfo = new ClassInfo(impl);
+        List<Constructor<?>> injectableConstructors = classInfo.getInjectableConstructors();
+        if (injectableConstructors.isEmpty()) {
+            try {
+                classInfo.getDefaultConstructor();
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException(e);
             }
+            return;
         }
-        if (injectors.isEmpty()) {
-            for (Constructor<?> constructor : impl.getDeclaredConstructors()) {
-                if (constructor.getParameterTypes().length == 0) {
-                    Injector injector = new ConstructorInjector(constructor);
-                    injectors.add(injector);
-                }
-            }
-        }
-        if (injectors.isEmpty()) {
+        if (injectableConstructors.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if (injectors.size() > 1) {
+        if (injectableConstructors.size() > 1) {
             throw new IllegalArgumentException();
         }
     }
@@ -152,23 +145,19 @@ public class Container {
     }
 
     public Object newInstance(Class<?> clazz) {
-        List<Injector> injectors = new ArrayList<>();
-        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            Injector injector = new ConstructorInjector(constructor);
-            if (injector.isInjectable()) {
-                injectors.add(injector);
-            }
-        }
-        if (injectors.isEmpty()) {
+        ClassInfo classInfo = new ClassInfo(clazz);
+        List<Constructor<?>> constructors = classInfo.getInjectableConstructors();
+        Constructor<?> constructor;
+        if (constructors.isEmpty() == false) {
+            constructor = constructors.get(0);
+        } else {
             try {
-                Constructor<?> constructor = clazz.getDeclaredConstructor();
-                Injector injector = new ConstructorInjector(constructor);
-                injectors.add(injector);
+                constructor = classInfo.getDefaultConstructor();
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
         }
-        return injectors.get(0).inject(this, null);
+        return new ConstructorInjector(constructor).inject(this, null);
     }
 
     public void inject(Object target) {
@@ -176,15 +165,11 @@ public class Container {
         for (int i = 0; i < injectable.getInjectableFields().size(); i++) {
             for (Field field : injectable.getInjectableFields().get(i)) {
                 Injector injector = new FieldInjector(field);
-                if (injector.isInjectable()) {
-                    injector.inject(this, target);
-                }
+                injector.inject(this, target);
             }
             for (Method method : injectable.getInjectableMethods().get(i)) {
                 Injector injector = new MethodInjector(method);
-                if (injector.isInjectable()) {
-                    injector.inject(this, target);
-                }
+                injector.inject(this, target);
             }
         }
     }
