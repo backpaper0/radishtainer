@@ -34,6 +34,8 @@ import net.hogedriven.backpaper0.radishtainer.test.Rrr;
 import net.hogedriven.backpaper0.radishtainer.test.Sss;
 import net.hogedriven.backpaper0.radishtainer.test.Ttt;
 import net.hogedriven.backpaper0.radishtainer.test.Uuu;
+import net.hogedriven.backpaper0.radishtainer.test.Www;
+import net.hogedriven.backpaper0.radishtainer.test.WwwProvider;
 import net.hogedriven.backpaper0.radishtainer.test.sub.Eee3;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
@@ -238,6 +240,16 @@ public class ContainerTest {
         Mmm instance2 = c.getInstance(Mmm.class, null);
         assertThat(instance2, sameInstance(instance1));
         assertThat(instance2.aaa, not(sameInstance(Aaa.INSTANCE)));
+    }
+
+    @Test
+    public void test_addProvider() throws Exception {
+        Container c = newContainer();
+        c.addProvider(Www.class, null, new WwwProvider());
+        c.addClass(Aaa.class, null, null);
+        Www instance = c.getInstance(Www.class, null);
+        assertThat(instance, sameInstance(Www.INSTANCE));
+        assertThat(instance.aaa, sameInstance(Aaa.INSTANCE));
     }
 
     @Test

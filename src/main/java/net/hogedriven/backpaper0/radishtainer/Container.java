@@ -71,6 +71,20 @@ public class Container {
         bindings.put(descriptor, Binding.newInstanceBinding(instance));
     }
 
+    public <T> void addProvider(Class<T> type, Annotation qualifier, Provider<T> provider) {
+        if (type == null) {
+            throw new IllegalArgumentException("type");
+        }
+        if (provider == null) {
+            throw new IllegalArgumentException("instance");
+        }
+        Descriptor descriptor = new Descriptor(type, qualifier);
+        if (bindings.containsKey(descriptor)) {
+            throw new RuntimeException();
+        }
+        bindings.put(descriptor, Binding.newProviderBinding(provider));
+    }
+
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
         if (type == null) {
             throw new IllegalArgumentException("type");
