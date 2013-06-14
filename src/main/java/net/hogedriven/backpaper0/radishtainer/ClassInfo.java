@@ -15,28 +15,29 @@ import net.hogedriven.backpaper0.radishtainer.event.Observes;
 
 public class ClassInfo {
 
+    private List<Class<?>> classes;
     private List<Constructor<?>> constructors;
-
-    private List<List<Field>> allFields = new ArrayList<>();
-
-    private List<List<Method>> allMethods = new ArrayList<>();
+    private List<Field> allFields = new ArrayList<>();
+    private List<Method> allMethods = new ArrayList<>();
 
     public ClassInfo(Class<?> clazz) {
-        constructors = Arrays.asList(clazz.getDeclaredConstructors());
-        List<Class<?>> classes = new ArrayList<>();
+        classes = new ArrayList();
         for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
             classes.add(c);
         }
+        constructors = Arrays.asList(clazz.getDeclaredConstructors());
         Collections.reverse(classes);
         for (Class<?> c : classes) {
-            allFields.add(Arrays.asList(c.getDeclaredFields()));
-            List<Method> methods = new ArrayList<>();
+            allFields.addAll(Arrays.asList(c.getDeclaredFields()));
             for (Method method : c.getDeclaredMethods()) {
                 removeOverrided(allMethods, method);
-                methods.add(method);
+                allMethods.add(method);
             }
-            allMethods.add(methods);
         }
+    }
+
+    public List<Class<?>> getClasses() {
+        return Collections.unmodifiableList(classes);
     }
 
     public List<Constructor<?>> getInjectableConstructors() {
@@ -58,44 +59,32 @@ public class ClassInfo {
         throw new NoSuchMethodException();
     }
 
-    public List<List<Field>> getInjectableFields() {
-        List<List<Field>> filtered = new ArrayList<>();
-        for (List<Field> fields : allFields) {
-            List<Field> list = new ArrayList<>();
-            for (Field field : fields) {
-                if (isInjectable(field)) {
-                    list.add(field);
-                }
+    public List<Field> getInjectableFields() {
+        List<Field> filtered = new ArrayList<>();
+        for (Field field : allFields) {
+            if (isInjectable(field)) {
+                filtered.add(field);
             }
-            filtered.add(list);
         }
         return filtered;
     }
 
-    public List<List<Method>> getInjectableMethods() {
-        List<List<Method>> filtered = new ArrayList<>();
-        for (List<Method> methods : allMethods) {
-            List<Method> list = new ArrayList<>();
-            for (Method method : methods) {
-                if (isInjectable(method)) {
-                    list.add(method);
-                }
+    public List<Method> getInjectableMethods() {
+        List<Method> filtered = new ArrayList<>();
+        for (Method method : allMethods) {
+            if (isInjectable(method)) {
+                filtered.add(method);
             }
-            filtered.add(list);
         }
         return filtered;
     }
 
-    public List<List<Method>> getObservableMethods(Class<?> eventClass) {
-        List<List<Method>> filtered = new ArrayList<>();
-        for (List<Method> methods : allMethods) {
-            List<Method> list = new ArrayList<>();
-            for (Method method : methods) {
-                if (isObservableMethod(method, eventClass)) {
-                    list.add(method);
-                }
+    public List<Method> getObservableMethods(Class<?> eventClass) {
+        List<Method> filtered = new ArrayList<>();
+        for (Method method : allMethods) {
+            if (isObservableMethod(method, eventClass)) {
+                filtered.add(method);
             }
-            filtered.add(list);
         }
         return filtered;
     }
@@ -112,13 +101,11 @@ public class ClassInfo {
         return false;
     }
 
-    private void removeOverrided(List<List<Method>> allMethods, Method method) {
-        for (List<Method> methods : allMethods) {
-            for (Method other : methods) {
-                if (isOverridden(method, other)) {
-                    methods.remove(other);
-                    return;
-                }
+    private void removeOverrided(List<Method> allMethods, Method method) {
+        for (Method other : allMethods) {
+            if (isOverridden(method, other)) {
+                allMethods.remove(other);
+                return;
             }
         }
     }

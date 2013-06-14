@@ -14,7 +14,6 @@ import javax.inject.Singleton;
 public class Container {
 
     private Map<Descriptor, Binding> bindings = new HashMap<>();
-
     private Scope defaultScope = new Scope() {
         @Override
         public Object getInstance(Container container, Class<?> impl) {
@@ -23,7 +22,6 @@ public class Container {
             return instance;
         }
     };
-
     private Map<Class<? extends Annotation>, Scope> scopes = new HashMap<>();
 
     public Container() {
@@ -162,14 +160,18 @@ public class Container {
 
     public void inject(Object target) {
         ClassInfo injectable = new ClassInfo(target.getClass());
-        for (int i = 0; i < injectable.getInjectableFields().size(); i++) {
-            for (Field field : injectable.getInjectableFields().get(i)) {
-                Injector injector = new FieldInjector(field);
-                injector.inject(this, target);
+        for (Class<?> clazz : injectable.getClasses()) {
+            for (Field field : injectable.getInjectableFields()) {
+                if (field.getDeclaringClass() == clazz) {
+                    Injector injector = new FieldInjector(field);
+                    injector.inject(this, target);
+                }
             }
-            for (Method method : injectable.getInjectableMethods().get(i)) {
-                Injector injector = new MethodInjector(method);
-                injector.inject(this, target);
+            for (Method method : injectable.getInjectableMethods()) {
+                if (method.getDeclaringClass() == clazz) {
+                    Injector injector = new MethodInjector(method);
+                    injector.inject(this, target);
+                }
             }
         }
     }
@@ -184,11 +186,13 @@ public class Container {
 
     private void fireEvent(Binding binding, Object event, Descriptor descriptor) {
         ClassInfo handleable = binding.getClassInfo();
-        for (List<Method> methods : handleable.getObservableMethods(event.getClass())) {
-            for (Method method : methods) {
-                Object instance = getInstance(descriptor);
-                Injector injector = new EventInjector(method, event);
-                injector.inject(this, instance);
+        for (Class<?> clazz : handleable.getClasses()) {
+            for (Method method : handleable.getObservableMethods(event.getClass())) {
+                if (method.getDeclaringClass() == clazz) {
+                    Object instance = getInstance(descriptor);
+                    Injector injector = new EventInjector(method, event);
+                    injector.inject(this, instance);
+                }
             }
         }
     }
