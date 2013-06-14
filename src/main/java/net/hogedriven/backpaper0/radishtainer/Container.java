@@ -43,7 +43,7 @@ public class Container {
         addInstance(type, null, scope);
     }
 
-    public <T> void add(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
+    public <T> void addClass(Class<T> type, Annotation qualifier, Class<? extends T> impl) {
         if (type == null) {
             throw new IllegalArgumentException("type");
         }

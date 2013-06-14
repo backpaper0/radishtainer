@@ -30,16 +30,16 @@ public class Jsr330TckTest {
 
     public static Test suite() throws Exception {
         Container c = new Container();
-        c.add(Car.class, null, Convertible.class);
-        c.add(Seat.class, qualifier("drivers"), DriversSeat.class);
-        c.add(Seat.class, null, null);
-        c.add(Tire.class, null, null);
-        c.add(Engine.class, null, V8Engine.class);
-        c.add(Tire.class, qualifier("spare"), SpareTire.class);
+        c.addClass(Car.class, null, Convertible.class);
+        c.addClass(Seat.class, qualifier("drivers"), DriversSeat.class);
+        c.addClass(Seat.class, null, null);
+        c.addClass(Tire.class, null, null);
+        c.addClass(Engine.class, null, V8Engine.class);
+        c.addClass(Tire.class, qualifier("spare"), SpareTire.class);
 
-        c.add(Cupholder.class, null, null);
-        c.add(SpareTire.class, null, null);
-        c.add(FuelTank.class, null, null);
+        c.addClass(Cupholder.class, null, null);
+        c.addClass(SpareTire.class, null, null);
+        c.addClass(FuelTank.class, null, null);
 
         Car car = c.getInstance(Car.class, null);
         boolean supportsStatic = false;

@@ -49,7 +49,7 @@ public class ContainerTest {
     @Test
     public void test_getInstance() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null, null);
+        c.addClass(Aaa.class, null, null);
         Aaa instance = c.getInstance(Aaa.class, null);
         assertThat(instance, is(notNullValue()));
     }
@@ -57,7 +57,7 @@ public class ContainerTest {
     @Test
     public void test_inject() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null, null);
+        c.addClass(Aaa.class, null, null);
         Bbb target = new Bbb();
         c.inject(target);
         assertThat("private field", target.getPrivateField(), not(sameInstance(Aaa.INSTANCE)));
@@ -73,7 +73,7 @@ public class ContainerTest {
     @Test
     public void test_inject_order() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null, null);
+        c.addClass(Aaa.class, null, null);
         Ccc2 target = new Ccc2();
         c.inject(target);
         assertThat("super field", target.getSuperField(), not(sameInstance(Aaa.INSTANCE)));
@@ -131,8 +131,8 @@ public class ContainerTest {
     @Test
     public void test_getInstance_andinject() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null, null);
-        c.add(Fff.class, null, null);
+        c.addClass(Aaa.class, null, null);
+        c.addClass(Fff.class, null, null);
         Fff instance = c.getInstance(Fff.class, null);
         assertThat("instance", instance, notNullValue());
         assertThat("field injection", instance.getField(), not(sameInstance(Aaa.INSTANCE)));
@@ -142,8 +142,8 @@ public class ContainerTest {
     @Test
     public void test_constructor_injection() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null, null);
-        c.add(Ggg.class, null, null);
+        c.addClass(Aaa.class, null, null);
+        c.addClass(Ggg.class, null, null);
         Ggg instance = c.getInstance(Ggg.class, null);
         assertThat("instance", instance, notNullValue());
         assertThat("constructor injection", instance.aaa, not(sameInstance(Aaa.INSTANCE)));
@@ -152,7 +152,7 @@ public class ContainerTest {
     @Test
     public void test_getInstance_by_interface() throws Exception {
         Container c = newContainer();
-        c.add(Hhh1.class, null, Hhh2.class);
+        c.addClass(Hhh1.class, null, Hhh2.class);
         Hhh1 instance = c.getInstance(Hhh1.class, null);
         assertThat(instance, instanceOf(Hhh2.class));
     }
@@ -163,8 +163,8 @@ public class ContainerTest {
     public void test_getInstance_by_qualifier() throws Exception {
         Annotation iii1 = ContainerTest.class.getDeclaredField("withIii1").getAnnotation(Iii1.class);
         Container c = newContainer();
-        c.add(Iii2.class, null, null);
-        c.add(Iii2.class, iii1, Iii3.class);
+        c.addClass(Iii2.class, null, null);
+        c.addClass(Iii2.class, iii1, Iii3.class);
         Iii2 instance1 = c.getInstance(Iii2.class, null);
         Iii2 instance2 = c.getInstance(Iii2.class, iii1);
         assertThat(instance1, not(instanceOf(Iii3.class)));
@@ -175,9 +175,9 @@ public class ContainerTest {
     public void test_inject_by_qualifier() throws Exception {
         Annotation iii1 = ContainerTest.class.getDeclaredField("withIii1").getAnnotation(Iii1.class);
         Container c = newContainer();
-        c.add(Jjj.class, null, null);
-        c.add(Iii2.class, null, null);
-        c.add(Iii2.class, iii1, Iii3.class);
+        c.addClass(Jjj.class, null, null);
+        c.addClass(Iii2.class, null, null);
+        c.addClass(Iii2.class, iii1, Iii3.class);
         Jjj instance = c.getInstance(Jjj.class, null);
         assertThat("field plain", instance.getFieldPlain(), not(instanceOf(Iii3.class)));
         assertThat("field with qualifier", instance.getFieldWithQualifier(), instanceOf(Iii3.class));
@@ -190,7 +190,7 @@ public class ContainerTest {
     @Test
     public void test_getProvider() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null, null);
+        c.addClass(Aaa.class, null, null);
         Provider<Aaa> provider = c.getProvider(Aaa.class, null);
         assertThat("provider", provider, notNullValue());
         assertThat("instance", provider.get(), notNullValue());
@@ -199,8 +199,8 @@ public class ContainerTest {
     @Test
     public void test_inject_provider() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null, null);
-        c.add(Kkk.class, null, null);
+        c.addClass(Aaa.class, null, null);
+        c.addClass(Kkk.class, null, null);
         Kkk instance = c.getInstance(Kkk.class, null);
 
         assertThat("provider field", instance.getField(), not(sameInstance(Kkk.PROVIDER)));
@@ -214,7 +214,7 @@ public class ContainerTest {
     @Test
     public void test_getInstance_default_scope() throws Exception {
         Container c = newContainer();
-        c.add(Aaa.class, null, null);
+        c.addClass(Aaa.class, null, null);
         Aaa instance1 = c.getInstance(Aaa.class, null);
         Aaa instance2 = c.getInstance(Aaa.class, null);
         assertThat(instance1, not(sameInstance(instance2)));
@@ -223,7 +223,7 @@ public class ContainerTest {
     @Test
     public void test_getInstance_singleton_scope() throws Exception {
         Container c = newContainer();
-        c.add(Lll.class, null, null);
+        c.addClass(Lll.class, null, null);
         Lll instance1 = c.getInstance(Lll.class, null);
         Lll instance2 = c.getInstance(Lll.class, null);
         assertThat(instance1, sameInstance(instance2));
@@ -234,7 +234,7 @@ public class ContainerTest {
         Container c = newContainer();
         Mmm instance1 = new Mmm();
         c.addInstance(Mmm.class, null, instance1);
-        c.add(Aaa.class, null, null);
+        c.addClass(Aaa.class, null, null);
         Mmm instance2 = c.getInstance(Mmm.class, null);
         assertThat(instance2, sameInstance(instance1));
         assertThat(instance2.aaa, not(sameInstance(Aaa.INSTANCE)));
@@ -243,7 +243,7 @@ public class ContainerTest {
     @Test
     public void test_event() throws Exception {
         Container c = newContainer();
-        c.add(Nnn.class, null, null);
+        c.addClass(Nnn.class, null, null);
         Nnn instance = c.getInstance(Nnn.class, null);
         assertThat(instance.aaa, sameInstance(Aaa.INSTANCE));
         Aaa event = new Aaa();
@@ -254,7 +254,7 @@ public class ContainerTest {
     @Test
     public void test_event_inheritance() throws Exception {
         Container c = newContainer();
-        c.add(Ooo2.class, null, null);
+        c.addClass(Ooo2.class, null, null);
         Ooo2 instance = c.getInstance(Ooo2.class, null);
         c.fireEvent(new Aaa());
         assertThat("super @Observers", instance.withAtObserversSuper, is(false));
@@ -268,7 +268,7 @@ public class ContainerTest {
     @Test
     public void test_event_inject() throws Exception {
         Container c = newContainer();
-        c.add(Ppp.class, null, null);
+        c.addClass(Ppp.class, null, null);
 
         Aaa injected = new Aaa();
         c.addInstance(Aaa.class, null, injected);
@@ -291,7 +291,7 @@ public class ContainerTest {
     public void test_custom_scope() throws Exception {
         Container c = newContainer();
         c.addScope(Qqq2.class, new Qqq1());
-        c.add(Qqq3.class, null, null);
+        c.addClass(Qqq3.class, null, null);
 
         c.fireEvent(new Aaa());
         Qqq3 instance1 = c.getInstance(Qqq3.class, null);
@@ -307,7 +307,7 @@ public class ContainerTest {
     @Test
     public void test_multi_thread() throws Exception {
         final Container c = newContainer();
-        c.add(Rrr.class, null, null);
+        c.addClass(Rrr.class, null, null);
         ExecutorService exec = Executors.newFixedThreadPool(2);
         Callable<Rrr> task = new Callable<Rrr>() {
             @Override
@@ -325,9 +325,9 @@ public class ContainerTest {
     @Test
     public void test_error_duplicate() throws Exception {
         final Container c = newContainer();
-        c.add(Aaa.class, null, null);
+        c.addClass(Aaa.class, null, null);
         expectedException.expect(RuntimeException.class);
-        c.add(Aaa.class, null, null);
+        c.addClass(Aaa.class, null, null);
     }
 
     @Test
@@ -358,21 +358,21 @@ public class ContainerTest {
     public void test_error_getInstance_interface() throws Exception {
         Container c = newContainer();
         expectedException.expect(IllegalArgumentException.class);
-        c.add(Hhh1.class, null, null);
+        c.addClass(Hhh1.class, null, null);
     }
 
     @Test
     public void test_error_getInstance_annotation() throws Exception {
         Container c = newContainer();
         expectedException.expect(IllegalArgumentException.class);
-        c.add(Iii1.class, null, null);
+        c.addClass(Iii1.class, null, null);
     }
 
     @Test
     public void test_error_getInstance_enum() throws Exception {
         Container c = newContainer();
         expectedException.expect(IllegalArgumentException.class);
-        c.add(Sss.class, null, null);
+        c.addClass(Sss.class, null, null);
     }
 
     @Test
@@ -393,14 +393,14 @@ public class ContainerTest {
     public void test_error_2_constructor_with_atInject() throws Exception {
         Container c = newContainer();
         expectedException.expect(IllegalArgumentException.class);
-        c.add(Ttt.class, null, null);
+        c.addClass(Ttt.class, null, null);
     }
 
     @Test
     public void test_error_no_constructor_with_atInject() throws Exception {
         Container c = newContainer();
         expectedException.expect(IllegalArgumentException.class);
-        c.add(Uuu.class, null, null);
+        c.addClass(Uuu.class, null, null);
     }
 
     protected Container newContainer() {
