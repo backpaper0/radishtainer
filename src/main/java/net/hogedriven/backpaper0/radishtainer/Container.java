@@ -164,22 +164,22 @@ public class Container {
                 throw new RuntimeException(e);
             }
         }
-        return new ConstructorInjector(constructor).inject(this, null);
+        Injector injector = new Injector();
+        return injector.inject(constructor, this, null);
     }
 
     public void inject(Object target) {
         ClassInfo injectable = new ClassInfo(target.getClass());
+        Injector injector = new Injector();
         for (Class<?> clazz : injectable.getClasses()) {
             for (Field field : injectable.getInjectableFields()) {
                 if (field.getDeclaringClass() == clazz) {
-                    Injector injector = new FieldInjector(field);
-                    injector.inject(this, target);
+                    injector.inject(field, this, target);
                 }
             }
             for (Method method : injectable.getInjectableMethods()) {
                 if (method.getDeclaringClass() == clazz) {
-                    Injector injector = new MethodInjector(method);
-                    injector.inject(this, target);
+                    injector.inject(method, this, target);
                 }
             }
         }
@@ -195,12 +195,12 @@ public class Container {
 
     private void fireEvent(Binding binding, Object event, Descriptor descriptor) {
         ClassInfo handleable = binding.getClassInfo();
+        Injector injector = new Injector();
         for (Class<?> clazz : handleable.getClasses()) {
             for (Method method : handleable.getObservableMethods(event.getClass())) {
                 if (method.getDeclaringClass() == clazz) {
                     Object instance = getInstance(descriptor);
-                    Injector injector = new EventInjector(method, event);
-                    injector.inject(this, instance);
+                    injector.inject(method, event, this, instance);
                 }
             }
         }

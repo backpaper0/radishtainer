@@ -12,19 +12,13 @@ public class InjectorTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
     @Iii1
     @Named
     Object withQualifiers;
 
     @Test
     public void test_no_more_than_one_qualifier() throws Exception {
-        Injector injector = new Injector() {
-            @Override
-            public Object inject(Container container, Object target) {
-                return null;
-            }
-        };
+        Injector injector = new Injector();
         Container container = null;
         Annotation[] annotations = InjectorTest.class.getDeclaredField("withQualifiers").getAnnotations();
         expectedException.expect(IllegalArgumentException.class);
