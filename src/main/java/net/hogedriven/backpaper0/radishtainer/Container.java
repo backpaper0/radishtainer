@@ -4,16 +4,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
 public class Container {
 
-    private Map<Descriptor, Binding> bindings = new HashMap<>();
+    private ConcurrentMap<Descriptor, Binding> bindings = new ConcurrentHashMap<>();
     private Scope defaultScope = new Scope() {
         @Override
         public Object getInstance(Container container, Class<?> impl) {
@@ -22,7 +23,7 @@ public class Container {
             return instance;
         }
     };
-    private Map<Class<? extends Annotation>, Scope> scopes = new HashMap<>();
+    private ConcurrentMap<Class<? extends Annotation>, Scope> scopes = new ConcurrentHashMap<>();
 
     public Container() {
         addScope(Singleton.class, new SingletonScope());
@@ -35,10 +36,10 @@ public class Container {
         if (scope == null) {
             throw new IllegalArgumentException("scope");
         }
-        if (scopes.containsKey(annotationType)) {
+        Scope put = scopes.putIfAbsent(annotationType, scope);
+        if (put != null && put != scope) {
             throw new RuntimeException();
         }
-        scopes.put(annotationType, scope);
         Class<Scope> type = (Class<Scope>) scope.getClass();
         addInstance(type, null, scope);
     }
@@ -48,13 +49,11 @@ public class Container {
             throw new IllegalArgumentException("type");
         }
         Descriptor descriptor = new Descriptor(type, qualifier);
-        if (bindings.containsKey(descriptor)) {
-            throw new RuntimeException();
-        }
         impl = impl != null ? impl : type;
         check(impl);
         Scope scope = findScope(impl);
-        bindings.put(descriptor, Binding.newClassBinding(impl, scope));
+        Binding binding = Binding.newClassBinding(impl, scope);
+        addBinding(descriptor, binding);
     }
 
     public <T> void addInstance(Class<T> type, Annotation qualifier, T instance) {
@@ -65,10 +64,8 @@ public class Container {
             throw new IllegalArgumentException("instance");
         }
         Descriptor descriptor = new Descriptor(type, qualifier);
-        if (bindings.containsKey(descriptor)) {
-            throw new RuntimeException();
-        }
-        bindings.put(descriptor, Binding.newInstanceBinding(instance));
+        Binding binding = Binding.newInstanceBinding(instance);
+        addBinding(descriptor, binding);
     }
 
     public <T> void addProvider(Class<T> type, Annotation qualifier, Provider<T> provider) {
@@ -79,10 +76,8 @@ public class Container {
             throw new IllegalArgumentException("instance");
         }
         Descriptor descriptor = new Descriptor(type, qualifier);
-        if (bindings.containsKey(descriptor)) {
-            throw new RuntimeException();
-        }
-        bindings.put(descriptor, Binding.newProviderBinding(provider));
+        Binding binding = Binding.newProviderBinding(provider);
+        addBinding(descriptor, binding);
     }
 
     public <T> T getInstance(Class<T> type, Annotation qualifier) {
@@ -208,6 +203,13 @@ public class Container {
                     injector.inject(this, instance);
                 }
             }
+        }
+    }
+
+    private void addBinding(Descriptor descriptor, Binding binding) throws RuntimeException {
+        Binding put = bindings.putIfAbsent(descriptor, binding);
+        if (put != null && put != binding) {
+            throw new RuntimeException();
         }
     }
 }
