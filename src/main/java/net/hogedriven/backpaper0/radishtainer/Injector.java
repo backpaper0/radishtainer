@@ -15,11 +15,17 @@ import javax.inject.Qualifier;
 
 public class Injector {
 
-    public Object inject(Field field, Container container, Object target) {
+    private final Container container;
+
+    public Injector(Container container) {
+        this.container = container;
+    }
+
+    public Object inject(Field field, Object target) {
         Class<?> type = field.getType();
         Type genericType = field.getGenericType();
         Annotation[] annotations = field.getAnnotations();
-        Object dependency = getDependency(container, type, genericType, annotations);
+        Object dependency = getDependency(type, genericType, annotations);
         if (Modifier.isPublic(field.getModifiers()) == false
                 && field.isAccessible() == false) {
             field.setAccessible(true);
@@ -32,11 +38,11 @@ public class Injector {
         return null;
     }
 
-    public Object inject(Method method, Container container, Object target) {
+    public Object inject(Method method, Object target) {
         Class<?>[] types = method.getParameterTypes();
         Type[] genericTypes = method.getGenericParameterTypes();
         Annotation[][] annotations = method.getParameterAnnotations();
-        Object[] dependencies = getDependencies(container, types, genericTypes, annotations, 0);
+        Object[] dependencies = getDependencies(types, genericTypes, annotations, 0);
         if (Modifier.isPublic(method.getModifiers()) == false
                 && method.isAccessible() == false) {
             method.setAccessible(true);
@@ -50,11 +56,11 @@ public class Injector {
         }
     }
 
-    public Object inject(Constructor<?> constructor, Container container, Object target) {
+    public Object inject(Constructor<?> constructor) {
         Class<?>[] types = constructor.getParameterTypes();
         Type[] genericTypes = constructor.getGenericParameterTypes();
         Annotation[][] annotations = constructor.getParameterAnnotations();
-        Object[] dependencies = getDependencies(container, types, genericTypes, annotations, 0);
+        Object[] dependencies = getDependencies(types, genericTypes, annotations, 0);
         if (Modifier.isPublic(constructor.getModifiers()) == false
                 && constructor.isAccessible() == false) {
             constructor.setAccessible(true);
@@ -68,11 +74,11 @@ public class Injector {
         }
     }
 
-    public Object inject(Method method, Object event, Container container, Object target) {
+    public Object inject(Method method, Object event, Object target) {
         Class<?>[] types = method.getParameterTypes();
         Type[] genericTypes = method.getGenericParameterTypes();
         Annotation[][] annotations = method.getParameterAnnotations();
-        Object[] dependencies = getDependencies(container, types, genericTypes, annotations, 1);
+        Object[] dependencies = getDependencies(types, genericTypes, annotations, 1);
         dependencies[0] = event;
         if (Modifier.isPublic(method.getModifiers()) == false
                 && method.isAccessible() == false) {
@@ -87,7 +93,7 @@ public class Injector {
         }
     }
 
-    protected Object getDependency(Container container, Class<?> type, Type genericType, Annotation[] annotations) {
+    protected Object getDependency(Class<?> type, Type genericType, Annotation[] annotations) {
         List<Annotation> qualifiers = new ArrayList<>();
         for (Annotation annotation : annotations) {
             if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
@@ -112,10 +118,10 @@ public class Injector {
         return dependency;
     }
 
-    protected Object[] getDependencies(Container container, Class<?>[] types, Type[] genericTypes, Annotation[][] annotations, int startIndex) {
+    protected Object[] getDependencies(Class<?>[] types, Type[] genericTypes, Annotation[][] annotations, int startIndex) {
         Object[] dependencies = new Object[types.length];
         for (int i = startIndex; i < types.length; i++) {
-            dependencies[i] = getDependency(container, types[i], genericTypes[i], annotations[i]);
+            dependencies[i] = getDependency(types[i], genericTypes[i], annotations[i]);
         }
         return dependencies;
     }

@@ -24,8 +24,10 @@ public class Container {
         }
     };
     private ConcurrentMap<Class<? extends Annotation>, Scope> scopes = new ConcurrentHashMap<>();
+    private Injector injector;
 
     public Container() {
+        injector = new Injector(this);
         addScope(Singleton.class, new SingletonScope());
     }
 
@@ -164,22 +166,20 @@ public class Container {
                 throw new RuntimeException(e);
             }
         }
-        Injector injector = new Injector();
-        return injector.inject(constructor, this, null);
+        return injector.inject(constructor);
     }
 
     public void inject(Object target) {
         ClassInfo injectable = new ClassInfo(target.getClass());
-        Injector injector = new Injector();
         for (Class<?> clazz : injectable.getClasses()) {
             for (Field field : injectable.getInjectableFields()) {
                 if (field.getDeclaringClass() == clazz) {
-                    injector.inject(field, this, target);
+                    injector.inject(field, target);
                 }
             }
             for (Method method : injectable.getInjectableMethods()) {
                 if (method.getDeclaringClass() == clazz) {
-                    injector.inject(method, this, target);
+                    injector.inject(method, target);
                 }
             }
         }
@@ -195,12 +195,11 @@ public class Container {
 
     private void fireEvent(Binding binding, Object event, Descriptor descriptor) {
         ClassInfo handleable = binding.getClassInfo();
-        Injector injector = new Injector();
         for (Class<?> clazz : handleable.getClasses()) {
             for (Method method : handleable.getObservableMethods(event.getClass())) {
                 if (method.getDeclaringClass() == clazz) {
                     Object instance = getInstance(descriptor);
-                    injector.inject(method, event, this, instance);
+                    injector.inject(method, event, instance);
                 }
             }
         }

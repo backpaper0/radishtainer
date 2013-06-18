@@ -18,10 +18,10 @@ public class InjectorTest {
 
     @Test
     public void test_no_more_than_one_qualifier() throws Exception {
-        Injector injector = new Injector();
         Container container = null;
+        Injector injector = new Injector(container);
         Annotation[] annotations = InjectorTest.class.getDeclaredField("withQualifiers").getAnnotations();
         expectedException.expect(IllegalArgumentException.class);
-        injector.getDependency(container, Aaa.class, Aaa.class, annotations);
+        injector.getDependency(Aaa.class, Aaa.class, annotations);
     }
 }
