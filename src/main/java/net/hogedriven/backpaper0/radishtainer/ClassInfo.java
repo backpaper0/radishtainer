@@ -15,13 +15,12 @@ import net.hogedriven.backpaper0.radishtainer.event.Observes;
 
 public class ClassInfo {
 
-    private List<Class<?>> classes;
-    private List<Constructor<?>> constructors;
-    private List<Field> allFields = new ArrayList<>();
-    private List<Method> allMethods = new ArrayList<>();
+    private final List<Class<?>> classes = new ArrayList<>();
+    private final List<Constructor<?>> constructors;
+    private final List<Field> allFields = new ArrayList<>();
+    private final List<Method> allMethods = new ArrayList<>();
 
     public ClassInfo(Class<?> clazz) {
-        classes = new ArrayList();
         for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
             classes.add(c);
         }

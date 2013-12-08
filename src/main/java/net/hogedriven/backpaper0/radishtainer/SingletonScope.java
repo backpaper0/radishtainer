@@ -8,7 +8,7 @@ import java.util.concurrent.FutureTask;
 
 public class SingletonScope implements Scope {
 
-    private ConcurrentMap<Class<?>, FutureTask<Object>> tasks = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<?>, FutureTask<Object>> tasks = new ConcurrentHashMap<>();
 
     @Override
     public Object getInstance(final Container container, final Class<?> impl) {

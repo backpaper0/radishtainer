@@ -9,13 +9,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
 public class Container {
 
     private ConcurrentMap<Descriptor, Binding> bindings = new ConcurrentHashMap<>();
-    private Scope defaultScope = new Scope() {
+    private final Scope defaultScope = new Scope() {
         @Override
         public Object getInstance(Container container, Class<?> impl) {
             Object instance = container.newInstance(impl);
@@ -23,8 +24,8 @@ public class Container {
             return instance;
         }
     };
-    private ConcurrentMap<Class<? extends Annotation>, Scope> scopes = new ConcurrentHashMap<>();
-    private Injector injector;
+    private final ConcurrentMap<Class<? extends Annotation>, Scope> scopes = new ConcurrentHashMap<>();
+    private final Injector injector;
 
     public Container() {
         injector = new Injector(this);
