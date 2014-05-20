@@ -12,13 +12,10 @@ public class SingletonScope implements Scope {
 
     @Override
     public Object getInstance(final Container container, final Class<?> impl) {
-        Callable<Object> callable = new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                Object instance = container.newInstance(impl);
-                container.inject(instance);
-                return instance;
-            }
+        Callable<Object> callable = () -> {
+            Object instance = container.newInstance(impl);
+            container.inject(instance);
+            return instance;
         };
         FutureTask<Object> newTask = new FutureTask<>(callable);
         FutureTask<Object> task = tasks.putIfAbsent(impl, newTask);

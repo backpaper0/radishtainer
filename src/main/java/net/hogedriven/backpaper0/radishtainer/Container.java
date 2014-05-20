@@ -16,13 +16,10 @@ import javax.inject.Singleton;
 public class Container {
 
     private ConcurrentMap<Descriptor, Binding> bindings = new ConcurrentHashMap<>();
-    private final Scope defaultScope = new Scope() {
-        @Override
-        public Object getInstance(Container container, Class<?> impl) {
-            Object instance = container.newInstance(impl);
-            container.inject(instance);
-            return instance;
-        }
+    private final Scope defaultScope = (container, impl) -> {
+        Object instance = container.newInstance(impl);
+        container.inject(instance);
+        return instance;
     };
     private final ConcurrentMap<Class<? extends Annotation>, Scope> scopes = new ConcurrentHashMap<>();
     private final Injector injector;
@@ -146,12 +143,7 @@ public class Container {
         }
         final Descriptor descriptor = new Descriptor(type, qualifier);
         check(descriptor);
-        return new Provider<T>() {
-            @Override
-            public T get() {
-                return (T) getInstance(descriptor);
-            }
-        };
+        return () -> (T) getInstance(descriptor);
     }
 
     public Object newInstance(Class<?> clazz) {

@@ -8,8 +8,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Provider;
 import javax.inject.Qualifier;
 
@@ -94,12 +95,9 @@ public class Injector {
     }
 
     protected Object getDependency(Class<?> type, Type genericType, Annotation[] annotations) {
-        List<Annotation> qualifiers = new ArrayList<>();
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
-                qualifiers.add(annotation);
-            }
-        }
+        List<Annotation> qualifiers = Arrays.stream(annotations)
+                .filter(a -> a.annotationType().isAnnotationPresent(Qualifier.class))
+                .collect(Collectors.toList());
         Annotation qualifier = null;
         if (qualifiers.isEmpty() == false) {
             if (qualifiers.size() > 1) {

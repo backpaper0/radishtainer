@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import net.hogedriven.backpaper0.radishtainer.event.Observes;
 
@@ -50,42 +51,28 @@ public class ClassInfo {
     }
 
     public Constructor<?> getDefaultConstructor() throws NoSuchMethodException {
-        for (Constructor<?> constructor : constructors) {
-            if (constructor.getParameterTypes().length == 0) {
-                return constructor;
-            }
-        }
-        throw new NoSuchMethodException();
+        return constructors.stream()
+                .filter(constructor -> constructor.getParameterTypes().length == 0)
+                .findFirst()
+                .orElseThrow(NoSuchMethodException::new);
     }
 
     public List<Field> getInjectableFields() {
-        List<Field> filtered = new ArrayList<>();
-        for (Field field : allFields) {
-            if (isInjectable(field)) {
-                filtered.add(field);
-            }
-        }
-        return filtered;
+        return allFields.stream()
+                .filter(field -> isInjectable(field))
+                .collect(Collectors.toList());
     }
 
     public List<Method> getInjectableMethods() {
-        List<Method> filtered = new ArrayList<>();
-        for (Method method : allMethods) {
-            if (isInjectable(method)) {
-                filtered.add(method);
-            }
-        }
-        return filtered;
+        return allMethods.stream()
+                .filter(method -> isInjectable(method))
+                .collect(Collectors.toList());
     }
 
     public List<Method> getObservableMethods(Class<?> eventClass) {
-        List<Method> filtered = new ArrayList<>();
-        for (Method method : allMethods) {
-            if (isObservableMethod(method, eventClass)) {
-                filtered.add(method);
-            }
-        }
-        return filtered;
+        return allMethods.stream()
+                .filter(method -> isObservableMethod(method, eventClass))
+                .collect(Collectors.toList());
     }
 
     private boolean isObservableMethod(Method method, Class<?> eventClass) {
