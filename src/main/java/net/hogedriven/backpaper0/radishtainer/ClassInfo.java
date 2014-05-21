@@ -1,6 +1,5 @@
 package net.hogedriven.backpaper0.radishtainer;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -27,13 +26,13 @@ public class ClassInfo {
         }
         constructors = Arrays.asList(clazz.getDeclaredConstructors());
         Collections.reverse(classes);
-        for (Class<?> c : classes) {
+        classes.forEach(c -> {
             allFields.addAll(Arrays.asList(c.getDeclaredFields()));
-            for (Method method : c.getDeclaredMethods()) {
+            Arrays.stream(c.getDeclaredMethods()).forEach(method -> {
                 removeOverrided(allMethods, method);
                 allMethods.add(method);
-            }
-        }
+            });
+        });
     }
 
     public List<Class<?>> getClasses() {
@@ -41,13 +40,9 @@ public class ClassInfo {
     }
 
     public List<Constructor<?>> getInjectableConstructors() {
-        List<Constructor<?>> filtered = new ArrayList<>();
-        for (Constructor<?> constructor : constructors) {
-            if (isInjectable(constructor)) {
-                filtered.add(constructor);
-            }
-        }
-        return filtered;
+        return constructors.stream()
+                .filter(constructor -> isInjectable(constructor))
+                .collect(Collectors.toList());
     }
 
     public Constructor<?> getDefaultConstructor() throws NoSuchMethodException {
@@ -78,22 +73,16 @@ public class ClassInfo {
     private boolean isObservableMethod(Method method, Class<?> eventClass) {
         Class<?>[] types = method.getParameterTypes();
         if (types.length > 0 && method.getParameterTypes()[0] == eventClass) {
-            for (Annotation annotation : method.getParameterAnnotations()[0]) {
-                if (annotation.annotationType() == Observes.class) {
-                    return true;
-                }
-            }
+            return Arrays.stream(method.getParameterAnnotations()[0])
+                    .filter(a -> a.annotationType() == Observes.class)
+                    .findFirst().isPresent();
         }
         return false;
     }
 
     private void removeOverrided(List<Method> allMethods, Method method) {
-        for (Method other : allMethods) {
-            if (isOverridden(method, other)) {
-                allMethods.remove(other);
-                return;
-            }
-        }
+        allMethods.stream().filter(other -> isOverridden(method, other))
+                .findFirst().ifPresent(other -> allMethods.remove(other));
     }
 
     static boolean isOverridden(Method method, Method other) {

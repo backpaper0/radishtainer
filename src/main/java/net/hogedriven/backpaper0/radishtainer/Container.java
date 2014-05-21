@@ -4,12 +4,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
@@ -127,14 +127,12 @@ public class Container {
     }
 
     private Scope findScope(Class<?> impl) {
-        for (Annotation annotation : impl.getAnnotations()) {
-            Class<? extends Annotation> annotationType = annotation.annotationType();
-            if (annotationType.isAnnotationPresent(javax.inject.Scope.class)) {
-                Scope scope = scopes.get(annotationType);
-                return scope;
-            }
-        }
-        return defaultScope;
+        return Arrays
+                .stream(impl.getAnnotations())
+                .filter(a -> a.annotationType().isAnnotationPresent(
+                        javax.inject.Scope.class))
+                .map(a -> scopes.get(a.annotationType())).findFirst()
+                .orElse(defaultScope);
     }
 
     public <T> Provider<T> getProvider(Class<T> type, Annotation qualifier) {
@@ -164,38 +162,35 @@ public class Container {
 
     public void inject(Object target) {
         ClassInfo injectable = new ClassInfo(target.getClass());
-        for (Class<?> clazz : injectable.getClasses()) {
-            for (Field field : injectable.getInjectableFields()) {
-                if (field.getDeclaringClass() == clazz) {
-                    injector.inject(field, target);
-                }
-            }
-            for (Method method : injectable.getInjectableMethods()) {
-                if (method.getDeclaringClass() == clazz) {
-                    injector.inject(method, target);
-                }
-            }
-        }
+        List<Class<?>> cs = injectable.getClasses();
+        List<Field> fs = injectable.getInjectableFields();
+        List<Method> ms = injectable.getInjectableMethods();
+        cs.forEach(c -> {
+            fs.stream().filter(f -> f.getDeclaringClass() == c)
+                    .forEach(f -> injector.inject(f, target));
+            ms.stream().filter(m -> m.getDeclaringClass() == c)
+                    .forEach(m -> injector.inject(m, target));
+        });
     }
 
     public void fireEvent(Object event) {
-        for (Map.Entry<Descriptor, Binding> entry : bindings.entrySet()) {
+        bindings.entrySet().forEach(entry -> {
             Descriptor descriptor = entry.getKey();
             Binding binding = entry.getValue();
             fireEvent(binding, event, descriptor);
-        }
+        });
     }
 
     private void fireEvent(Binding binding, Object event, Descriptor descriptor) {
         ClassInfo handleable = binding.getClassInfo();
-        for (Class<?> clazz : handleable.getClasses()) {
-            for (Method method : handleable.getObservableMethods(event.getClass())) {
-                if (method.getDeclaringClass() == clazz) {
-                    Object instance = getInstance(descriptor);
-                    injector.inject(method, event, instance);
-                }
-            }
-        }
+        List<Class<?>> cs = handleable.getClasses();
+        cs.forEach(c -> {
+            handleable.getObservableMethods(event.getClass()).stream()
+                    .filter(m -> m.getDeclaringClass() == c).forEach(m -> {
+                        Object instance = getInstance(descriptor);
+                        injector.inject(m, event, instance);
+                    });
+        });
     }
 
     private void addBinding(Descriptor descriptor, Binding binding) throws RuntimeException {

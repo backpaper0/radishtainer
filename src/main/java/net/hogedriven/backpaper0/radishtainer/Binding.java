@@ -1,7 +1,7 @@
 package net.hogedriven.backpaper0.radishtainer;
 
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.util.Arrays;
 import javax.inject.Provider;
 
 public abstract class Binding {
@@ -78,16 +78,14 @@ public abstract class Binding {
 
         @Override
         public ClassInfo getClassInfo() {
-            for (Type type : provider.getClass().getGenericInterfaces()) {
-                if (type instanceof ParameterizedType) {
-                    ParameterizedType pt = (ParameterizedType) type;
-                    if (pt.getRawType() == Provider.class) {
-                        Class<?> clazz = (Class<?>) pt.getActualTypeArguments()[0];
-                        return new ClassInfo(clazz);
-                    }
-                }
-            }
-            throw new IllegalStateException();
+            return Arrays
+                    .stream(provider.getClass().getGenericInterfaces())
+                    .filter(type -> type instanceof ParameterizedType)
+                    .map(type -> (ParameterizedType) type)
+                    .filter(pt -> pt.getRawType() == Provider.class)
+                    .map(pt -> new ClassInfo((Class<?>) pt
+                            .getActualTypeArguments()[0])).findFirst()
+                    .orElseThrow(IllegalStateException::new);
         }
     }
 }
