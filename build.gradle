@@ -1,0 +1,27 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+configurations {
+    providedCompile
+}
+
+sourceSets {
+    main.compileClasspath += configurations.providedCompile
+    test.compileClasspath += configurations.providedCompile
+    test.runtimeClasspath += configurations.providedCompile
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    providedCompile 'javax.inject:javax.inject:1'
+    testCompile 'javax.inject:javax.inject-tck:1'
+    testCompile 'junit:junit:4.12'
+}
