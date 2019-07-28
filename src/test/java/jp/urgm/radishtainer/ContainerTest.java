@@ -3,6 +3,7 @@ package jp.urgm.radishtainer;
 import static org.junit.Assert.*;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.junit.Test;
@@ -99,6 +100,32 @@ public class ContainerTest {
         assertSame(component1, component2);
     }
 
+    @Test
+    public void qualifier() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Fff2.class)
+                .register(Fff3.class)
+                .build();
+        final Fff1 component1 = container.getComponent(Fff1.class, new NamedImpl("foo"));
+        final Fff1 component2 = container.getComponent(Fff1.class, new NamedImpl("bar"));
+        final Fff2 component3 = container.getComponent(Fff2.class);
+        final Fff3 component4 = container.getComponent(Fff3.class);
+        assertSame(component3, component1);
+        assertSame(component4, component2);
+    }
+
+    @Test
+    public void qualifierGetComponentByType() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Fff2.class)
+                .build();
+        final Fff1 component1 = container.getComponent(Fff1.class, new NamedImpl("foo"));
+        final Fff1 component2 = container.getComponent(Fff1.class);
+        final Fff2 component3 = container.getComponent(Fff2.class);
+        assertSame(component3, component1);
+        assertSame(component3, component2);
+    }
+
     private static class Aaa {
     }
 
@@ -157,5 +184,18 @@ public class ContainerTest {
 
     @Singleton
     private static class Eee2 extends Eee1 {
+    }
+
+    private interface Fff1 {
+    }
+
+    @Named("foo")
+    @Singleton
+    private static class Fff2 implements Fff1 {
+    }
+
+    @Named("bar")
+    @Singleton
+    private static class Fff3 implements Fff1 {
     }
 }
