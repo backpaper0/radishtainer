@@ -205,6 +205,30 @@ public class ContainerTest {
         assertSame(component1, component2.provider.get());
     }
 
+    @Test
+    public void fieldInjectionSuperclass() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Iii1.class)
+                .register(Iii3.class)
+                .build();
+        final Iii1 component1 = container.getComponent(Iii1.class);
+        final Iii3 component2 = container.getComponent(Iii3.class);
+        assertSame(component1, component2.component1);
+        assertSame(component1, component2.component2);
+    }
+
+    @Test
+    public void methodInjectionSuperclass() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Iii1.class)
+                .register(Iii5.class)
+                .build();
+        final Iii1 component1 = container.getComponent(Iii1.class);
+        final Iii5 component2 = container.getComponent(Iii5.class);
+        assertSame(component1, component2.component1);
+        assertSame(component1, component2.component2);
+    }
+
     private static class Aaa {
     }
 
@@ -352,6 +376,40 @@ public class ContainerTest {
         @Inject
         void method(final Provider<Hhh1> provider) {
             this.provider = provider;
+        }
+    }
+
+    @Singleton
+    private static class Iii1 {
+    }
+
+    private static class Iii2 {
+        @Inject
+        Iii1 component1;
+    }
+
+    private static class Iii3 extends Iii2 {
+        @Inject
+        Iii1 component2;
+    }
+
+    private static class Iii4 {
+
+        Iii1 component1;
+
+        @Inject
+        void setComponent1(final Iii1 component1) {
+            this.component1 = component1;
+        }
+    }
+
+    private static class Iii5 extends Iii4 {
+
+        Iii1 component2;
+
+        @Inject
+        void setComponent2(final Iii1 component2) {
+            this.component2 = component2;
         }
     }
 }

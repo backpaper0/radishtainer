@@ -28,11 +28,13 @@ public class AnnotationDefinitionFactory implements DefinitionFactory {
         final InjectionConstructor constructor = injectionConstructorFactory.create(clazz)
                 .orElseThrow(RuntimeException::new);
         final List<InjectionMember> members = new ArrayList<>();
-        for (final Field field : clazz.getDeclaredFields()) {
-            injectionMemberFactory.fromField(field).ifPresent(members::add);
-        }
-        for (final Method method : clazz.getDeclaredMethods()) {
-            injectionMemberFactory.fromMethod(method).ifPresent(members::add);
+        for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
+            for (final Field field : c.getDeclaredFields()) {
+                injectionMemberFactory.fromField(field).ifPresent(members::add);
+            }
+            for (final Method method : c.getDeclaredMethods()) {
+                injectionMemberFactory.fromMethod(method).ifPresent(members::add);
+            }
         }
         final Scope scope = scopeResolver.resolve(clazz);
         return new Definition(clazz, constructor, members, scope);
