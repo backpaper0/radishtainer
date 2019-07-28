@@ -61,9 +61,9 @@ public class ContainerTest {
                 .register(Ccc3.class)
                 .build();
         final Ccc1 component1 = container.getComponent(Ccc1.class);
-        System.out.println(component1);
         final Ccc3 component2 = container.getComponent(Ccc3.class);
         assertNotNull(component2.component);
+        assertNull(component2.notInjected);
         assertSame(component1, component2.component);
     }
 
@@ -98,12 +98,17 @@ public class ContainerTest {
         Ccc2(final Ccc1 component) {
             this.component = component;
         }
+
+        Ccc2(final Ccc1 component, final int forOverload) {
+            throw new AssertionError();
+        }
     }
 
     private static class Ccc3 {
 
         @Inject
         Ccc1 component;
+        Ccc1 notInjected;
     }
 
     private static class Ccc4 {
@@ -113,6 +118,10 @@ public class ContainerTest {
         @Inject
         void method(final Ccc1 component) {
             this.component = component;
+        }
+
+        void notInjected(final Ccc1 component) {
+            throw new AssertionError();
         }
     }
 }

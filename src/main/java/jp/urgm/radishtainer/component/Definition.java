@@ -1,35 +1,34 @@
 package jp.urgm.radishtainer.component;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import javax.inject.Provider;
 
 import jp.urgm.radishtainer.Container;
+import jp.urgm.radishtainer.inject.InjectionConstructor;
+import jp.urgm.radishtainer.inject.InjectionMember;
 import jp.urgm.radishtainer.scope.Scope;
 
 public class Definition {
 
     private final Class<?> clazz;
+    private final InjectionConstructor constructor;
+    private final List<InjectionMember> members;
     private final Scope scope;
 
-    public Definition(final Class<?> clazz, final Scope scope) {
+    public Definition(final Class<?> clazz, final InjectionConstructor constructor,
+            final List<InjectionMember> members, final Scope scope) {
         this.clazz = clazz;
+        this.constructor = constructor;
+        this.members = members;
         this.scope = scope;
     }
 
     public Object getComponent(final Container container) {
         final Provider<?> provider = () -> {
-            try {
-                final Constructor<?> constructor = clazz.getDeclaredConstructor();
-                if (constructor.isAccessible() == false) {
-                    constructor.setAccessible(true);
-                }
-                return constructor.newInstance();
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
-                    | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+            final Object component = constructor.inject(container);
+            members.forEach(m -> m.inject(container, component));
+            return component;
         };
         return scope.getComponent(clazz, provider);
     }
