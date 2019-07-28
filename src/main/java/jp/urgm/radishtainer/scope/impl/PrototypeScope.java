@@ -1,6 +1,8 @@
-package jp.urgm.radishtainer;
+package jp.urgm.radishtainer.scope.impl;
 
 import javax.inject.Provider;
+
+import jp.urgm.radishtainer.scope.Scope;
 
 public class PrototypeScope implements Scope {
 

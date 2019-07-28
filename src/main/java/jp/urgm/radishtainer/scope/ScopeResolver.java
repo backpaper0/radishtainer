@@ -1,4 +1,4 @@
-package jp.urgm.radishtainer;
+package jp.urgm.radishtainer.scope;
 
 public interface ScopeResolver {
 

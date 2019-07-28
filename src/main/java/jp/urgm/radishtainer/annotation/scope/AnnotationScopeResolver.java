@@ -1,4 +1,4 @@
-package jp.urgm.radishtainer;
+package jp.urgm.radishtainer.annotation.scope;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Singleton;
+
+import jp.urgm.radishtainer.scope.Scope;
+import jp.urgm.radishtainer.scope.ScopeResolver;
+import jp.urgm.radishtainer.scope.impl.PrototypeScope;
+import jp.urgm.radishtainer.scope.impl.SingletonScope;
 
 public class AnnotationScopeResolver implements ScopeResolver {
 

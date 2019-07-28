@@ -1,9 +1,11 @@
-package jp.urgm.radishtainer;
+package jp.urgm.radishtainer.scope.impl;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Provider;
+
+import jp.urgm.radishtainer.scope.Scope;
 
 public class SingletonScope implements Scope {
 

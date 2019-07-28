@@ -1,4 +1,4 @@
-package jp.urgm.radishtainer;
+package jp.urgm.radishtainer.scope;
 
 import javax.inject.Provider;
 

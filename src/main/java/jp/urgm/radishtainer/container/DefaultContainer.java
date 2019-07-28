@@ -1,6 +1,10 @@
-package jp.urgm.radishtainer;
+package jp.urgm.radishtainer.container;
 
 import java.util.Map;
+
+import jp.urgm.radishtainer.Container;
+import jp.urgm.radishtainer.component.Definition;
+import jp.urgm.radishtainer.component.Key;
 
 public class DefaultContainer implements Container {
 

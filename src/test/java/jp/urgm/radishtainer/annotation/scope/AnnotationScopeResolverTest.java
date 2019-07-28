@@ -1,10 +1,15 @@
-package jp.urgm.radishtainer;
+package jp.urgm.radishtainer.annotation.scope;
 
 import static org.junit.Assert.*;
 
 import javax.inject.Singleton;
 
 import org.junit.Test;
+
+import jp.urgm.radishtainer.annotation.scope.AnnotationScopeResolver;
+import jp.urgm.radishtainer.scope.Scope;
+import jp.urgm.radishtainer.scope.impl.PrototypeScope;
+import jp.urgm.radishtainer.scope.impl.SingletonScope;
 
 public class AnnotationScopeResolverTest {
 

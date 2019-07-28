@@ -1,9 +1,12 @@
-package jp.urgm.radishtainer;
+package jp.urgm.radishtainer.component;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.inject.Provider;
+
+import jp.urgm.radishtainer.Container;
+import jp.urgm.radishtainer.scope.Scope;
 
 public class Definition {
 
