@@ -79,6 +79,26 @@ public class ContainerTest {
         assertSame(component1, component2.component);
     }
 
+    @Test
+    public void getComponentByInterface() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Ddd2.class)
+                .build();
+        final Ddd2 component1 = container.getComponent(Ddd2.class);
+        final Ddd1 component2 = container.getComponent(Ddd1.class);
+        assertSame(component1, component2);
+    }
+
+    @Test
+    public void getComponentBySuperclass() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Eee2.class)
+                .build();
+        final Eee2 component1 = container.getComponent(Eee2.class);
+        final Eee1 component2 = container.getComponent(Eee1.class);
+        assertSame(component1, component2);
+    }
+
     private static class Aaa {
     }
 
@@ -123,5 +143,19 @@ public class ContainerTest {
         void notInjected(final Ccc1 component) {
             throw new AssertionError();
         }
+    }
+
+    private interface Ddd1 {
+    }
+
+    @Singleton
+    private static class Ddd2 implements Ddd1 {
+    }
+
+    private static abstract class Eee1 {
+    }
+
+    @Singleton
+    private static class Eee2 extends Eee1 {
     }
 }
