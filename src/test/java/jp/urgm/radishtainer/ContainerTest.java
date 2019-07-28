@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.junit.Test;
@@ -168,6 +169,42 @@ public class ContainerTest {
         assertSame(component2, component3.component2);
     }
 
+    @Test
+    public void constructorInjectionAsProvider() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Hhh1.class)
+                .register(Hhh2.class)
+                .build();
+        final Hhh1 component1 = container.getComponent(Hhh1.class);
+        final Hhh2 component2 = container.getComponent(Hhh2.class);
+        assertNotNull(component2.provider);
+        assertSame(component1, component2.provider.get());
+    }
+
+    @Test
+    public void fieldInjectionAsProvider() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Hhh1.class)
+                .register(Hhh3.class)
+                .build();
+        final Hhh1 component1 = container.getComponent(Hhh1.class);
+        final Hhh3 component2 = container.getComponent(Hhh3.class);
+        assertNotNull(component2.provider);
+        assertSame(component1, component2.provider.get());
+    }
+
+    @Test
+    public void methodInjectionAsProvider() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Hhh1.class)
+                .register(Hhh4.class)
+                .build();
+        final Hhh1 component1 = container.getComponent(Hhh1.class);
+        final Hhh4 component2 = container.getComponent(Hhh4.class);
+        assertNotNull(component2.provider);
+        assertSame(component1, component2.provider.get());
+    }
+
     private static class Aaa {
     }
 
@@ -285,6 +322,36 @@ public class ContainerTest {
         void method(@Named("foo") final Ggg1 component1, @Named("bar") final Ggg1 component2) {
             this.component1 = component1;
             this.component2 = component2;
+        }
+    }
+
+    @Singleton
+    private static class Hhh1 {
+    }
+
+    private static class Hhh2 {
+
+        Provider<Hhh1> provider;
+
+        @Inject
+        Hhh2(final Provider<Hhh1> provider) {
+            this.provider = provider;
+        }
+    }
+
+    private static class Hhh3 {
+
+        @Inject
+        Provider<Hhh1> provider;
+    }
+
+    private static class Hhh4 {
+
+        Provider<Hhh1> provider;
+
+        @Inject
+        void method(final Provider<Hhh1> provider) {
+            this.provider = provider;
         }
     }
 }

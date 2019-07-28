@@ -3,8 +3,10 @@ package jp.urgm.radishtainer.annotation.inject.factory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 
+import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import jp.urgm.radishtainer.inject.DependencyResolver;
@@ -19,7 +21,13 @@ public class AnnotationDependencyResolverFactory implements DependencyResolverFa
         final Annotation[] qualifiers = Arrays.stream(executable.getParameterAnnotations()[index])
                 .filter(a -> a.annotationType().isAnnotationPresent(Qualifier.class))
                 .toArray(Annotation[]::new);
-        return new DefaultDependencyResolver(clazz, qualifiers);
+        if (clazz == Provider.class) {
+            final ParameterizedType pt = (ParameterizedType) executable
+                    .getGenericParameterTypes()[index];
+            final Class<?> c = (Class<?>) pt.getActualTypeArguments()[0];
+            return new DefaultDependencyResolver(c, qualifiers, true);
+        }
+        return new DefaultDependencyResolver(clazz, qualifiers, false);
     }
 
     @Override
@@ -28,6 +36,11 @@ public class AnnotationDependencyResolverFactory implements DependencyResolverFa
         final Annotation[] qualifiers = Arrays.stream(field.getAnnotations())
                 .filter(a -> a.annotationType().isAnnotationPresent(Qualifier.class))
                 .toArray(Annotation[]::new);
-        return new DefaultDependencyResolver(clazz, qualifiers);
+        if (clazz == Provider.class) {
+            final ParameterizedType pt = (ParameterizedType) field.getGenericType();
+            final Class<?> c = (Class<?>) pt.getActualTypeArguments()[0];
+            return new DefaultDependencyResolver(c, qualifiers, true);
+        }
+        return new DefaultDependencyResolver(clazz, qualifiers, false);
     }
 }

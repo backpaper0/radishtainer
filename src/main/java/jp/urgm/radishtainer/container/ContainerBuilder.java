@@ -1,5 +1,6 @@
 package jp.urgm.radishtainer.container;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -22,6 +23,18 @@ public class ContainerBuilder {
 
     public ContainerBuilder register(final Class<?> clazz) {
         final Key key = keyFactory.create(clazz);
+        final Definition definition = definitionFactory.create(clazz);
+        definitions.put(key, definition);
+
+        for (final Key alias : key.getAliases()) {
+            aliases.computeIfAbsent(alias, a -> new HashSet<>()).add(key);
+        }
+
+        return this;
+    }
+
+    public ContainerBuilder register(final Class<?> clazz, final Annotation... qualifiers) {
+        final Key key = new Key(clazz, qualifiers);
         final Definition definition = definitionFactory.create(clazz);
         definitions.put(key, definition);
 
