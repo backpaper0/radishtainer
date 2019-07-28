@@ -3,6 +3,7 @@ package jp.urgm.radishtainer.annotation.component.factory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import jp.urgm.radishtainer.annotation.inject.factory.AnnotationInjectionConstructorFactory;
@@ -32,11 +33,31 @@ public class AnnotationDefinitionFactory implements DefinitionFactory {
             for (final Field field : c.getDeclaredFields()) {
                 injectionMemberFactory.fromField(field).ifPresent(members::add);
             }
+        }
+
+        final List<Method> methods = new ArrayList<>();
+        for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
             for (final Method method : c.getDeclaredMethods()) {
-                injectionMemberFactory.fromMethod(method).ifPresent(members::add);
+                if (isOverriden(methods, method) == false) {
+                    methods.add(method);
+                }
             }
         }
+        for (final Method method : methods) {
+            injectionMemberFactory.fromMethod(method).ifPresent(members::add);
+        }
+
         final Scope scope = scopeResolver.resolve(clazz);
         return new Definition(clazz, constructor, members, scope);
+    }
+
+    private static boolean isOverriden(final List<Method> methods, final Method method) {
+        for (final Method m : methods) {
+            if (m.getName().equals(method.getName())
+                    && Arrays.equals(m.getParameterTypes(), method.getParameterTypes())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

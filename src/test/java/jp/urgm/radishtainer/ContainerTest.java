@@ -229,6 +229,20 @@ public class ContainerTest {
         assertSame(component1, component2.component2);
     }
 
+    @Test
+    public void methodInjectionOverride() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Iii1.class)
+                .register(Iii7.class)
+                .build();
+        final Iii1 component1 = container.getComponent(Iii1.class);
+        final Iii7 component2 = container.getComponent(Iii7.class);
+        assertSame(component1, component2.component1);
+        assertNull(component2.component2);
+        assertSame(component1, component2.component3);
+        assertNull(component2.component4);
+    }
+
     private static class Aaa {
     }
 
@@ -410,6 +424,57 @@ public class ContainerTest {
         @Inject
         void setComponent2(final Iii1 component2) {
             this.component2 = component2;
+        }
+    }
+
+    private static class Iii6 {
+
+        Iii1 component1;
+        Iii1 component2;
+        Iii1 component3;
+        Iii1 component4;
+
+        @Inject
+        void setComponent1(final Iii1 component1) {
+            this.component1 = component1;
+        }
+
+        @Inject
+        void setComponent2(final Iii1 component2) {
+            this.component2 = component2;
+        }
+
+        void setComponent3(final Iii1 component3) {
+            this.component3 = component3;
+        }
+
+        void setComponent4(final Iii1 component4) {
+            this.component4 = component4;
+        }
+    }
+
+    private static class Iii7 extends Iii6 {
+
+        @Override
+        @Inject
+        void setComponent1(final Iii1 component1) {
+            super.setComponent1(component1);
+        }
+
+        @Override
+        void setComponent2(final Iii1 component2) {
+            super.setComponent2(component2);
+        }
+
+        @Override
+        @Inject
+        void setComponent3(final Iii1 component3) {
+            super.setComponent3(component3);
+        }
+
+        @Override
+        void setComponent4(final Iii1 component4) {
+            super.setComponent4(component4);
         }
     }
 }
