@@ -126,6 +126,48 @@ public class ContainerTest {
         assertSame(component3, component2);
     }
 
+    @Test
+    public void constructorInjectionWithQualifier() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Ggg2.class)
+                .register(Ggg3.class)
+                .register(Ggg4.class)
+                .build();
+        final Ggg2 component1 = container.getComponent(Ggg2.class);
+        final Ggg3 component2 = container.getComponent(Ggg3.class);
+        final Ggg4 component3 = container.getComponent(Ggg4.class);
+        assertSame(component1, component3.component1);
+        assertSame(component2, component3.component2);
+    }
+
+    @Test
+    public void fieldInjectionWithQualifier() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Ggg2.class)
+                .register(Ggg3.class)
+                .register(Ggg5.class)
+                .build();
+        final Ggg2 component1 = container.getComponent(Ggg2.class);
+        final Ggg3 component2 = container.getComponent(Ggg3.class);
+        final Ggg5 component3 = container.getComponent(Ggg5.class);
+        assertSame(component1, component3.component1);
+        assertSame(component2, component3.component2);
+    }
+
+    @Test
+    public void methodInjectionWithQualifier() throws Exception {
+        final Container container = new ContainerBuilder()
+                .register(Ggg2.class)
+                .register(Ggg3.class)
+                .register(Ggg6.class)
+                .build();
+        final Ggg2 component1 = container.getComponent(Ggg2.class);
+        final Ggg3 component2 = container.getComponent(Ggg3.class);
+        final Ggg6 component3 = container.getComponent(Ggg6.class);
+        assertSame(component1, component3.component1);
+        assertSame(component2, component3.component2);
+    }
+
     private static class Aaa {
     }
 
@@ -197,5 +239,52 @@ public class ContainerTest {
     @Named("bar")
     @Singleton
     private static class Fff3 implements Fff1 {
+    }
+
+    private interface Ggg1 {
+    }
+
+    @Named("foo")
+    @Singleton
+    private static class Ggg2 implements Ggg1 {
+    }
+
+    @Named("bar")
+    @Singleton
+    private static class Ggg3 implements Ggg1 {
+    }
+
+    private static class Ggg4 {
+
+        Ggg1 component1;
+        Ggg1 component2;
+
+        @Inject
+        Ggg4(@Named("foo") final Ggg1 component1, @Named("bar") final Ggg1 component2) {
+            this.component1 = component1;
+            this.component2 = component2;
+        }
+    }
+
+    private static class Ggg5 {
+
+        @Inject
+        @Named("foo")
+        Ggg1 component1;
+        @Inject
+        @Named("bar")
+        Ggg1 component2;
+    }
+
+    private static class Ggg6 {
+
+        Ggg1 component1;
+        Ggg1 component2;
+
+        @Inject
+        void method(@Named("foo") final Ggg1 component1, @Named("bar") final Ggg1 component2) {
+            this.component1 = component1;
+            this.component2 = component2;
+        }
     }
 }
