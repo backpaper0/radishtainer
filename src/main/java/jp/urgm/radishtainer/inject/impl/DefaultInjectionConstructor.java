@@ -2,26 +2,28 @@ package jp.urgm.radishtainer.inject.impl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import jp.urgm.radishtainer.Container;
+import jp.urgm.radishtainer.inject.DependencyResolver;
 import jp.urgm.radishtainer.inject.InjectionConstructor;
 
 public class DefaultInjectionConstructor implements InjectionConstructor {
 
     private final Constructor<?> constructor;
+    private final List<DependencyResolver> dependencyResolvers;
 
-    public DefaultInjectionConstructor(final Constructor<?> constructor) {
+    public DefaultInjectionConstructor(final Constructor<?> constructor,
+            final List<DependencyResolver> dependencyResolvers) {
         this.constructor = constructor;
+        this.dependencyResolvers = dependencyResolvers;
     }
 
     @Override
     public Object inject(final Container container) {
 
-        final Object[] dependencies = new Object[constructor.getParameterCount()];
-        for (int i = 0; i < dependencies.length; i++) {
-            final Class<?> clazz = constructor.getParameterTypes()[i];
-            dependencies[i] = container.getComponent(clazz);
-        }
+        final Object[] dependencies = dependencyResolvers.stream().map(a -> a.resolve(container))
+                .toArray();
 
         if (constructor.isAccessible() == false) {
             constructor.setAccessible(true);
