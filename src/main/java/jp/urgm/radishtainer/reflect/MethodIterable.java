@@ -21,7 +21,7 @@ public class MethodIterable implements Iterable<Method> {
         final List<Method> methods = new ArrayList<>();
         for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
             for (final Method method : c.getDeclaredMethods()) {
-                if (isOverriden(methods, method) == false) {
+                if (method.isSynthetic() == false && isOverriden(methods, method) == false) {
                     methods.add(method);
                 }
             }
@@ -38,7 +38,8 @@ public class MethodIterable implements Iterable<Method> {
         }
         final Package pkg = method.getDeclaringClass().getPackage();
         for (final Method m : methods) {
-            if (m.getName().equals(method.getName())
+            if (m.getDeclaringClass() != method.getDeclaringClass()
+                    && m.getName().equals(method.getName())
                     && Arrays.equals(m.getParameterTypes(), method.getParameterTypes())) {
 
                 if (Modifier.isPublic(method.getModifiers()) == false

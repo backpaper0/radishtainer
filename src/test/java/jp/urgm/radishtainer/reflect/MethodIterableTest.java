@@ -3,6 +3,7 @@ package jp.urgm.radishtainer.reflect;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,5 +56,57 @@ public class MethodIterableTest {
                 .collect(Collectors.toSet());
 
         assertEquals(expected, methods);
+    }
+
+    @Test
+    public void ignoreBridgeMethod() throws Exception {
+        final MethodIterable iterable = new MethodIterable(Aaa2.class);
+
+        final Set<Method> methods = StreamSupport.stream(iterable.spliterator(), false)
+                .collect(Collectors.toSet());
+
+        final Set<Method> expected = Arrays.stream(Aaa2.class.getDeclaredMethods())
+                .filter(a -> a.getName().equals("method")
+                        && a.getReturnType() == String.class
+                        && a.getParameterCount() == 0)
+                .collect(Collectors.toSet());
+
+        assertEquals(expected, methods);
+    }
+
+    @Test
+    public void ignoreSyntheticMethod() throws Exception {
+        new Aaa3().method(); //syntheticメソッドを生成するために呼び出す
+
+        final MethodIterable iterable = new MethodIterable(Aaa3.class);
+
+        final Set<Method> methods = StreamSupport.stream(iterable.spliterator(), false)
+                .collect(Collectors.toSet());
+
+        final Set<Method> expected = Arrays.stream(Aaa3.class.getDeclaredMethods())
+                .filter(a -> a.getName().equals("method")
+                        && a.getReturnType() == Void.TYPE
+                        && a.getParameterCount() == 0)
+                .collect(Collectors.toSet());
+
+        assertEquals(expected, methods);
+    }
+
+    private static class Aaa1 {
+        Object method() {
+            return null;
+        }
+    }
+
+    private static class Aaa2 extends Aaa1 {
+        @Override
+        String method() {
+            return null;
+        }
+    }
+
+    private static class Aaa3 {
+        private void method() {
+        }
     }
 }
