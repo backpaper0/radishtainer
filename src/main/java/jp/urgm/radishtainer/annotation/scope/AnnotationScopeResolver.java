@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Singleton;
 
+import jp.urgm.radishtainer.Prototype;
 import jp.urgm.radishtainer.scope.Scope;
 import jp.urgm.radishtainer.scope.ScopeResolver;
 import jp.urgm.radishtainer.scope.impl.PrototypeScope;
@@ -19,6 +20,7 @@ public class AnnotationScopeResolver implements ScopeResolver {
 
     public AnnotationScopeResolver() {
         scopes.put(Singleton.class, new SingletonScope());
+        scopes.put(Prototype.class, defaultScope);
     }
 
     @Override
