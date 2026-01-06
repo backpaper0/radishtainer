@@ -1,6 +1,6 @@
 package jp.urgm.radishtainer.scope.impl;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import jp.urgm.radishtainer.scope.Scope;
 

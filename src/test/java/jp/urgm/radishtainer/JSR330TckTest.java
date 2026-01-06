@@ -1,6 +1,6 @@
 package jp.urgm.radishtainer;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.atinject.tck.Tck;
 import org.atinject.tck.auto.Car;

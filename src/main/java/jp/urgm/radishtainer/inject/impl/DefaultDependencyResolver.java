@@ -2,7 +2,7 @@ package jp.urgm.radishtainer.inject.impl;
 
 import java.lang.annotation.Annotation;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import jp.urgm.radishtainer.Container;
 import jp.urgm.radishtainer.inject.DependencyResolver;

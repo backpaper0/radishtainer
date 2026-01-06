@@ -2,7 +2,7 @@ package jp.urgm.radishtainer.annotation.scope;
 
 import static org.junit.Assert.*;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.junit.Test;
 

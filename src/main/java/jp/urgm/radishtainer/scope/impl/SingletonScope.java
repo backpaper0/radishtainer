@@ -3,7 +3,7 @@ package jp.urgm.radishtainer.scope.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import jp.urgm.radishtainer.scope.Scope;
 

@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import jp.urgm.radishtainer.inject.DependencyResolver;
 import jp.urgm.radishtainer.inject.InjectionConstructor;

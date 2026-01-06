@@ -2,7 +2,7 @@ package jp.urgm.radishtainer;
 
 import static org.junit.Assert.*;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.junit.Test;
 

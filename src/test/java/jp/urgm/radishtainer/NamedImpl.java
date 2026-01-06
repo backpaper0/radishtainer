@@ -2,7 +2,7 @@ package jp.urgm.radishtainer;
 
 import java.lang.annotation.Annotation;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 public class NamedImpl implements Named {
 

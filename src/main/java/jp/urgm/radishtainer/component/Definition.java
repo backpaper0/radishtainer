@@ -2,7 +2,7 @@ package jp.urgm.radishtainer.component;
 
 import java.util.List;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import jp.urgm.radishtainer.Container;
 import jp.urgm.radishtainer.inject.InjectionConstructor;

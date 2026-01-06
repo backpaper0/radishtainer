@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import jp.urgm.radishtainer.Prototype;
 import jp.urgm.radishtainer.scope.Scope;
@@ -27,7 +27,7 @@ public class AnnotationScopeResolver implements ScopeResolver {
     public Scope resolve(final Class<?> clazz) {
         return Arrays.stream(clazz.getAnnotations())
                 .map(Annotation::annotationType)
-                .filter(a -> a.isAnnotationPresent(javax.inject.Scope.class))
+                .filter(a -> a.isAnnotationPresent(jakarta.inject.Scope.class))
                 .map(scopes::get)
                 .findAny()
                 .orElse(defaultScope);
