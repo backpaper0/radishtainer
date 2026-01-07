@@ -4,5 +4,6 @@ import jp.urgm.radishtainer.component.Key;
 
 public interface KeyFactory {
 
-    Key create(Class<?> clazz);
+	Key create(Class<?> clazz);
+
 }

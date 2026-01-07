@@ -8,29 +8,32 @@ import jp.urgm.radishtainer.inject.InjectionMember;
 
 public class DefaultInjectionField implements InjectionMember {
 
-    private final Field field;
-    private final DependencyResolver dependencyResolver;
+	private final Field field;
 
-    public DefaultInjectionField(final Field field, final DependencyResolver dependencyResolver) {
-        this.field = field;
-        this.dependencyResolver = dependencyResolver;
-    }
+	private final DependencyResolver dependencyResolver;
 
-    @Override
-    public Object inject(final Container container, final Object component) {
+	public DefaultInjectionField(final Field field, final DependencyResolver dependencyResolver) {
+		this.field = field;
+		this.dependencyResolver = dependencyResolver;
+	}
 
-        final Object dependency = dependencyResolver.resolve(container);
+	@Override
+	public Object inject(final Container container, final Object component) {
 
-        if (field.isAccessible() == false) {
-            field.setAccessible(true);
-        }
+		final Object dependency = dependencyResolver.resolve(container);
 
-        try {
-            field.set(component, dependency);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+		if (field.isAccessible() == false) {
+			field.setAccessible(true);
+		}
 
-        return null;
-    }
+		try {
+			field.set(component, dependency);
+		}
+		catch (IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+
+		return null;
+	}
+
 }

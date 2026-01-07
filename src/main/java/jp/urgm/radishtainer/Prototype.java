@@ -10,4 +10,5 @@ import jakarta.inject.Scope;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Prototype {
+
 }

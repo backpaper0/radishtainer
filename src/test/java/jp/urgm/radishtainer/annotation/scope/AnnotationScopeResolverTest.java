@@ -13,24 +13,27 @@ import jp.urgm.radishtainer.scope.impl.SingletonScope;
 
 public class AnnotationScopeResolverTest {
 
-    @Test
-    public void defaultScope() throws Exception {
-        final AnnotationScopeResolver scopeResolver = new AnnotationScopeResolver();
-        final Scope scope = scopeResolver.resolve(Aaa.class);
-        assertEquals(PrototypeScope.class, scope.getClass());
-    }
+	@Test
+	public void defaultScope() throws Exception {
+		final AnnotationScopeResolver scopeResolver = new AnnotationScopeResolver();
+		final Scope scope = scopeResolver.resolve(Aaa.class);
+		assertEquals(PrototypeScope.class, scope.getClass());
+	}
 
-    @Test
-    public void singletonScope() throws Exception {
-        final AnnotationScopeResolver scopeResolver = new AnnotationScopeResolver();
-        final Scope scope = scopeResolver.resolve(Bbb.class);
-        assertEquals(SingletonScope.class, scope.getClass());
-    }
+	@Test
+	public void singletonScope() throws Exception {
+		final AnnotationScopeResolver scopeResolver = new AnnotationScopeResolver();
+		final Scope scope = scopeResolver.resolve(Bbb.class);
+		assertEquals(SingletonScope.class, scope.getClass());
+	}
 
-    private static class Aaa {
-    }
+	private static class Aaa {
 
-    @Singleton
-    private static class Bbb {
-    }
+	}
+
+	@Singleton
+	private static class Bbb {
+
+	}
+
 }

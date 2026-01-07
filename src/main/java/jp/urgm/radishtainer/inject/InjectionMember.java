@@ -4,5 +4,6 @@ import jp.urgm.radishtainer.Container;
 
 public interface InjectionMember {
 
-    Object inject(Container container, Object component);
+	Object inject(Container container, Object component);
+
 }

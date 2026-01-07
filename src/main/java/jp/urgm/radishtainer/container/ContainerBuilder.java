@@ -16,36 +16,40 @@ import jp.urgm.radishtainer.component.factory.KeyFactory;
 
 public class ContainerBuilder {
 
-    private final KeyFactory keyFactory = new AnnotationKeyFactory();
-    private final DefinitionFactory definitionFactory = new AnnotationDefinitionFactory();
-    private final Map<Key, Definition> definitions = new HashMap<>();
-    private final Map<Key, Set<Key>> aliases = new HashMap<>();
+	private final KeyFactory keyFactory = new AnnotationKeyFactory();
 
-    public ContainerBuilder register(final Class<?> clazz) {
-        final Key key = keyFactory.create(clazz);
-        final Definition definition = definitionFactory.create(clazz);
-        definitions.put(key, definition);
+	private final DefinitionFactory definitionFactory = new AnnotationDefinitionFactory();
 
-        for (final Key alias : key.getAliases()) {
-            aliases.computeIfAbsent(alias, a -> new HashSet<>()).add(key);
-        }
+	private final Map<Key, Definition> definitions = new HashMap<>();
 
-        return this;
-    }
+	private final Map<Key, Set<Key>> aliases = new HashMap<>();
 
-    public ContainerBuilder register(final Class<?> clazz, final Annotation... qualifiers) {
-        final Key key = new Key(clazz, qualifiers);
-        final Definition definition = definitionFactory.create(clazz);
-        definitions.put(key, definition);
+	public ContainerBuilder register(final Class<?> clazz) {
+		final Key key = keyFactory.create(clazz);
+		final Definition definition = definitionFactory.create(clazz);
+		definitions.put(key, definition);
 
-        for (final Key alias : key.getAliases()) {
-            aliases.computeIfAbsent(alias, a -> new HashSet<>()).add(key);
-        }
+		for (final Key alias : key.getAliases()) {
+			aliases.computeIfAbsent(alias, a -> new HashSet<>()).add(key);
+		}
 
-        return this;
-    }
+		return this;
+	}
 
-    public Container build() {
-        return new DefaultContainer(keyFactory, definitions, aliases);
-    }
+	public ContainerBuilder register(final Class<?> clazz, final Annotation... qualifiers) {
+		final Key key = new Key(clazz, qualifiers);
+		final Definition definition = definitionFactory.create(clazz);
+		definitions.put(key, definition);
+
+		for (final Key alias : key.getAliases()) {
+			aliases.computeIfAbsent(alias, a -> new HashSet<>()).add(key);
+		}
+
+		return this;
+	}
+
+	public Container build() {
+		return new DefaultContainer(keyFactory, definitions, aliases);
+	}
+
 }

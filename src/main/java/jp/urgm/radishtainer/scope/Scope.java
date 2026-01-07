@@ -4,5 +4,6 @@ import jakarta.inject.Provider;
 
 public interface Scope {
 
-    Object getComponent(Class<?> clazz, Provider<?> provider);
+	Object getComponent(Class<?> clazz, Provider<?> provider);
+
 }

@@ -25,49 +25,51 @@ import jp.urgm.radishtainer.scope.ScopeResolver;
 
 public class AnnotationDefinitionFactory implements DefinitionFactory {
 
-    private final InjectionConstructorFactory injectionConstructorFactory = new AnnotationInjectionConstructorFactory();
-    private final InjectionMemberFactory injectionMemberFactory = new AnnotationInjectionMemberFactory();
-    private final ScopeResolver scopeResolver = new AnnotationScopeResolver();
+	private final InjectionConstructorFactory injectionConstructorFactory = new AnnotationInjectionConstructorFactory();
 
-    @Override
-    public Definition create(final Class<?> clazz) {
-        final InjectionConstructor constructor = injectionConstructorFactory.create(clazz)
-                .orElseThrow(RuntimeException::new);
-        final List<Map.Entry<Integer, InjectionMember>> orderAndMembers = new ArrayList<>();
+	private final InjectionMemberFactory injectionMemberFactory = new AnnotationInjectionMemberFactory();
 
-        final Map<Class<?>, Integer> orders = new HashMap<>();
-        int order = 0;
-        for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
-            orders.put(c, order++);
-        }
+	private final ScopeResolver scopeResolver = new AnnotationScopeResolver();
 
-        for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
-            for (final Field field : c.getDeclaredFields()) {
-                final Class<?> dc = c;
-                injectionMemberFactory.fromField(field).ifPresent(a -> {
-                    final Map.Entry<Integer, InjectionMember> entry = new AbstractMap.SimpleEntry<>(
-                            orders.get(dc), a);
-                    orderAndMembers.add(entry);
-                });
-            }
-        }
+	@Override
+	public Definition create(final Class<?> clazz) {
+		final InjectionConstructor constructor = injectionConstructorFactory.create(clazz)
+			.orElseThrow(RuntimeException::new);
+		final List<Map.Entry<Integer, InjectionMember>> orderAndMembers = new ArrayList<>();
 
-        for (final Method method : new MethodIterable(clazz)) {
-            final Class<?> dc = method.getDeclaringClass();
-            injectionMemberFactory.fromMethod(method).ifPresent(a -> {
-                final Map.Entry<Integer, InjectionMember> entry = new AbstractMap.SimpleEntry<>(
-                        orders.get(dc), a);
-                orderAndMembers.add(entry);
-            });
-        }
+		final Map<Class<?>, Integer> orders = new HashMap<>();
+		int order = 0;
+		for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
+			orders.put(c, order++);
+		}
 
-        final Comparator<? super Map.Entry<Integer, InjectionMember>> comparator = Comparator
-                .comparing(Map.Entry::getKey);
-        final List<InjectionMember> members = orderAndMembers.stream().sorted(comparator.reversed())
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+		for (Class<?> c = clazz; c != Object.class; c = c.getSuperclass()) {
+			for (final Field field : c.getDeclaredFields()) {
+				final Class<?> dc = c;
+				injectionMemberFactory.fromField(field).ifPresent(a -> {
+					final Map.Entry<Integer, InjectionMember> entry = new AbstractMap.SimpleEntry<>(orders.get(dc), a);
+					orderAndMembers.add(entry);
+				});
+			}
+		}
 
-        final Scope scope = scopeResolver.resolve(clazz);
-        return new Definition(clazz, constructor, members, scope);
-    }
+		for (final Method method : new MethodIterable(clazz)) {
+			final Class<?> dc = method.getDeclaringClass();
+			injectionMemberFactory.fromMethod(method).ifPresent(a -> {
+				final Map.Entry<Integer, InjectionMember> entry = new AbstractMap.SimpleEntry<>(orders.get(dc), a);
+				orderAndMembers.add(entry);
+			});
+		}
+
+		final Comparator<? super Map.Entry<Integer, InjectionMember>> comparator = Comparator
+			.comparing(Map.Entry::getKey);
+		final List<InjectionMember> members = orderAndMembers.stream()
+			.sorted(comparator.reversed())
+			.map(Map.Entry::getValue)
+			.collect(Collectors.toList());
+
+		final Scope scope = scopeResolver.resolve(clazz);
+		return new Definition(clazz, constructor, members, scope);
+	}
+
 }

@@ -19,37 +19,44 @@ import junit.framework.Test;
 
 public class JSR330TckTest {
 
-    @Drivers
-    Object drivers;
-    @Named("spare")
-    Object spare;
+	@Drivers
+	Object drivers;
 
-    public static Test suite() throws Exception {
-        final Container container = new ContainerBuilder()
-                //org.atinject.tck.auto.Car is implemented by Convertible.
-                .register(Convertible.class)
-                //@Drivers Seat is implemented by DriversSeat.
-                .register(DriversSeat.class, drivers())
-                //Seat is implemented by Seat itself, and Tire by Tire itself (not subclasses).
-                .register(Seat.class).register(Tire.class)
-                //Engine is implemented by V8Engine.
-                .register(V8Engine.class)
-                //@Named("spare") Tire is implemented by SpareTire.
-                .register(SpareTire.class, spare())
-                //The following classes may also be injected directly: Cupholder, SpareTire, and FuelTank.
-                .register(Cupholder.class).register(SpareTire.class).register(FuelTank.class)
-                .build();
-        final Car car = container.getComponent(Car.class);
-        final boolean supportsStatic = false;
-        final boolean supportsPrivate = true;
-        return Tck.testsFor(car, supportsStatic, supportsPrivate);
-    }
+	@Named("spare")
+	Object spare;
 
-    private static Drivers drivers() throws Exception {
-        return JSR330TckTest.class.getDeclaredField("drivers").getAnnotation(Drivers.class);
-    }
+	public static Test suite() throws Exception {
+		final Container container = new ContainerBuilder()
+			// org.atinject.tck.auto.Car is implemented by Convertible.
+			.register(Convertible.class)
+			// @Drivers Seat is implemented by DriversSeat.
+			.register(DriversSeat.class, drivers())
+			// Seat is implemented by Seat itself, and Tire by Tire itself (not
+			// subclasses).
+			.register(Seat.class)
+			.register(Tire.class)
+			// Engine is implemented by V8Engine.
+			.register(V8Engine.class)
+			// @Named("spare") Tire is implemented by SpareTire.
+			.register(SpareTire.class, spare())
+			// The following classes may also be injected directly: Cupholder, SpareTire,
+			// and FuelTank.
+			.register(Cupholder.class)
+			.register(SpareTire.class)
+			.register(FuelTank.class)
+			.build();
+		final Car car = container.getComponent(Car.class);
+		final boolean supportsStatic = false;
+		final boolean supportsPrivate = true;
+		return Tck.testsFor(car, supportsStatic, supportsPrivate);
+	}
 
-    private static Named spare() throws Exception {
-        return JSR330TckTest.class.getDeclaredField("spare").getAnnotation(Named.class);
-    }
+	private static Drivers drivers() throws Exception {
+		return JSR330TckTest.class.getDeclaredField("drivers").getAnnotation(Drivers.class);
+	}
+
+	private static Named spare() throws Exception {
+		return JSR330TckTest.class.getDeclaredField("spare").getAnnotation(Named.class);
+	}
+
 }

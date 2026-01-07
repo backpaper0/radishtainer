@@ -4,5 +4,6 @@ import jp.urgm.radishtainer.component.Definition;
 
 public interface DefinitionFactory {
 
-    Definition create(Class<?> clazz);
+	Definition create(Class<?> clazz);
+
 }

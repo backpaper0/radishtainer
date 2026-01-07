@@ -4,5 +4,6 @@ import jp.urgm.radishtainer.Container;
 
 public interface DependencyResolver {
 
-    Object resolve(Container container);
+	Object resolve(Container container);
+
 }

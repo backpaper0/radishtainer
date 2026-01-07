@@ -7,7 +7,8 @@ import jp.urgm.radishtainer.inject.DependencyResolver;
 
 public interface DependencyResolverFactory {
 
-    DependencyResolver fromParameter(Executable executable, int index);
+	DependencyResolver fromParameter(Executable executable, int index);
 
-    DependencyResolver fromField(Field field);
+	DependencyResolver fromField(Field field);
+
 }

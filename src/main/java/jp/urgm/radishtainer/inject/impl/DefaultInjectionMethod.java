@@ -10,31 +10,32 @@ import jp.urgm.radishtainer.inject.InjectionMember;
 
 public class DefaultInjectionMethod implements InjectionMember {
 
-    private final Method method;
-    private final List<DependencyResolver> dependencyResolvers;
+	private final Method method;
 
-    public DefaultInjectionMethod(final Method method,
-            final List<DependencyResolver> dependencyResolvers) {
-        this.method = method;
-        this.dependencyResolvers = dependencyResolvers;
-    }
+	private final List<DependencyResolver> dependencyResolvers;
 
-    @Override
-    public Object inject(final Container container, final Object component) {
+	public DefaultInjectionMethod(final Method method, final List<DependencyResolver> dependencyResolvers) {
+		this.method = method;
+		this.dependencyResolvers = dependencyResolvers;
+	}
 
-        final Object[] dependencies = dependencyResolvers.stream().map(a -> a.resolve(container))
-                .toArray();
+	@Override
+	public Object inject(final Container container, final Object component) {
 
-        if (method.isAccessible() == false) {
-            method.setAccessible(true);
-        }
+		final Object[] dependencies = dependencyResolvers.stream().map(a -> a.resolve(container)).toArray();
 
-        try {
-            method.invoke(component, dependencies);
-        } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+		if (method.isAccessible() == false) {
+			method.setAccessible(true);
+		}
 
-        return null;
-    }
+		try {
+			method.invoke(component, dependencies);
+		}
+		catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+
+		return null;
+	}
+
 }

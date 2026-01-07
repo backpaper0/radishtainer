@@ -8,7 +8,8 @@ import jp.urgm.radishtainer.inject.InjectionMember;
 
 public interface InjectionMemberFactory {
 
-    Optional<InjectionMember> fromMethod(Method method);
+	Optional<InjectionMember> fromMethod(Method method);
 
-    Optional<InjectionMember> fromField(Field field);
+	Optional<InjectionMember> fromField(Field field);
+
 }

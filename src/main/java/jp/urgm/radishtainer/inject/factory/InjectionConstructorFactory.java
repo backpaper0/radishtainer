@@ -6,5 +6,6 @@ import jp.urgm.radishtainer.inject.InjectionConstructor;
 
 public interface InjectionConstructorFactory {
 
-    Optional<InjectionConstructor> create(Class<?> clazz);
+	Optional<InjectionConstructor> create(Class<?> clazz);
+
 }

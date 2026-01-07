@@ -10,30 +10,32 @@ import jp.urgm.radishtainer.inject.InjectionConstructor;
 
 public class DefaultInjectionConstructor implements InjectionConstructor {
 
-    private final Constructor<?> constructor;
-    private final List<DependencyResolver> dependencyResolvers;
+	private final Constructor<?> constructor;
 
-    public DefaultInjectionConstructor(final Constructor<?> constructor,
-            final List<DependencyResolver> dependencyResolvers) {
-        this.constructor = constructor;
-        this.dependencyResolvers = dependencyResolvers;
-    }
+	private final List<DependencyResolver> dependencyResolvers;
 
-    @Override
-    public Object inject(final Container container) {
+	public DefaultInjectionConstructor(final Constructor<?> constructor,
+			final List<DependencyResolver> dependencyResolvers) {
+		this.constructor = constructor;
+		this.dependencyResolvers = dependencyResolvers;
+	}
 
-        final Object[] dependencies = dependencyResolvers.stream().map(a -> a.resolve(container))
-                .toArray();
+	@Override
+	public Object inject(final Container container) {
 
-        if (constructor.isAccessible() == false) {
-            constructor.setAccessible(true);
-        }
+		final Object[] dependencies = dependencyResolvers.stream().map(a -> a.resolve(container)).toArray();
 
-        try {
-            return constructor.newInstance(dependencies);
-        } catch (InstantiationException | IllegalAccessException | SecurityException
-                | IllegalArgumentException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		if (constructor.isAccessible() == false) {
+			constructor.setAccessible(true);
+		}
+
+		try {
+			return constructor.newInstance(dependencies);
+		}
+		catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException
+				| InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }
